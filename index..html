@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="tr" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0B1410">
+<title>Arapça Konuşma — Hatice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,500;1,7..72,300;1,7..72,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  (function(){ if (typeof emailjs !== 'undefined') { emailjs.init({ publicKey: 'h4HOZ5moJJFACZNWM' }); } })();
+</script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root{
+  --bg:#0B1410; --bg2:#101C14; --surface:#162018; --surface2:#1C2A1E;
+  --border:rgba(120,180,100,0.12); --border2:rgba(120,180,100,0.06);
+  --green:#5A9E60; --green-light:#7EC486; --green-dark:#2D5E32;
+  --gold:#C8A84B; --gold-light:#E2C97A; --gold-dark:#7A6020;
+  --blue:#5B8DC8; --blue-light:#8FB6E0;
+  --rose:#C87A8E;
+  --text:#E8F0E6; --text-soft:#8BA888; --text-faded:#4A6048;
+  --arabic:'Scheherazade New','Traditional Arabic',serif;
+  --display:'Literata',Georgia,serif;
+  --body:'DM Sans',system-ui,sans-serif;
+  --radius:14px;
+}
+body{ font-family:var(--body); background:var(--bg); color:var(--text); min-height:100vh; padding-bottom:90px;
+  background-image: radial-gradient(ellipse at 10% 0%, rgba(90,158,96,0.08) 0%, transparent 50%), radial-gradient(ellipse at 90% 100%, rgba(200,168,75,0.06) 0%, transparent 50%);
+}
+#setup{ min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px; text-align:center; }
+.setup-bismillah{ font-family:var(--arabic); font-size:34px; color:var(--gold); line-height:1.4; margin-bottom:8px; opacity:0.85; }
+.setup-sub{ font-size:11px; color:var(--text-faded); margin-bottom:36px; font-style:italic; letter-spacing:0.5px; }
+.setup-title{ font-family:var(--display); font-size:27px; font-weight:300; margin-bottom:8px; line-height:1.3; }
+.setup-desc{ font-size:14px; color:var(--text-soft); margin-bottom:36px; line-height:1.6; }
+.setup-input{ width:100%; max-width:300px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; font-family:var(--body); font-size:15px; color:var(--text); margin-bottom:16px; outline:none; text-align:center; }
+.setup-input::placeholder{ color:var(--text-faded); }
+.setup-btn{ background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; border-radius:var(--radius); padding:15px 40px; font-size:15px; font-weight:500; cursor:pointer; font-family:var(--body); box-shadow:0 4px 20px rgba(90,158,96,0.3); }
+.setup-features{ margin-top:36px; display:flex; flex-direction:column; gap:10px; max-width:320px; text-align:left; }
+.setup-feature{ display:flex; gap:12px; align-items:flex-start; font-size:13px; color:var(--text-soft); }
+.setup-feature span:first-child{ font-size:16px; flex-shrink:0; }
+#app{ display:none; }
+#app.active{ display:block; }
+.header{ padding:16px 20px 12px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border2); position:sticky; top:0; background:var(--bg); z-index:10; }
+.header-name{ font-family:var(--display); font-size:18px; font-weight:300; font-style:italic; color:var(--green-light); }
+.header-day{ font-size:11px; color:var(--text-faded); }
+.header-right{ text-align:right; }
+.header-streak{ font-size:13px; color:var(--gold); font-weight:500; }
+.header-wallet{ font-size:11px; color:var(--green-light); }
+.tab-bar{ position:fixed; bottom:0; left:0; right:0; background:var(--bg2); border-top:1px solid var(--border); display:flex; z-index:20; padding-bottom:env(safe-area-inset-bottom,0); }
+.tab{ flex:1; padding:10px 4px 8px; text-align:center; cursor:pointer; transition:all .2s; }
+.tab-icon{ font-size:20px; display:block; margin-bottom:2px; }
+.tab-label{ font-size:9px; color:var(--text-faded); letter-spacing:.3px; font-weight:500; text-transform:uppercase; }
+.tab.active .tab-label{ color:var(--green-light); }
+.tab.active{ background:rgba(90,158,96,0.08); border-top:2px solid var(--green); }
+.view{ display:none; padding:16px 16px 0; }
+.view.active{ display:block; }
+.sec-title{ font-family:var(--display); font-size:13px; font-style:italic; color:var(--text-soft); margin:4px 0 12px; display:flex; align-items:center; gap:8px; }
+.sec-title::after{ content:''; flex:1; height:1px; background:var(--border); }
+.week-badge{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:14px; }
+.week-num{ font-family:var(--display); font-size:34px; font-style:italic; color:var(--gold); line-height:1; flex-shrink:0; }
+.week-info{ flex:1; }
+.week-title{ font-size:14px; font-weight:600; margin-bottom:2px; }
+.week-sub{ font-size:11px; color:var(--text-soft); }
+.progress-section{ margin-bottom:16px; }
+.progress-header{ display:flex; justify-content:space-between; margin-bottom:8px; }
+.progress-label{ font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-faded); font-weight:500; }
+.progress-val{ font-size:12px; color:var(--green-light); font-weight:500; }
+.prog-bar{ background:var(--surface2); border-radius:99px; height:6px; overflow:hidden; margin-bottom:4px; }
+.prog-fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,var(--green-dark),var(--green-light)); transition:width .5s ease; }
+.sessions-grid{ display:flex; flex-direction:column; gap:12px; margin-bottom:16px; }
+.session-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:18px 20px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden; }
+.session-card::before{ content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:18px 0 0 18px; }
+.session-card.s1::before{ background:linear-gradient(180deg,#C8A84B,#E2C97A); }
+.session-card.s2::before{ background:linear-gradient(180deg,#5A9E60,#7EC486); }
+.session-card.s3::before{ background:linear-gradient(180deg,#5B8DC8,#8FB6E0); }
+.session-card.done{ opacity:.55; }
+.session-card.done::after{ content:'✓ 10 ₺'; position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--green-light); font-weight:600; }
+.session-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; }
+.session-time{ font-size:10px; color:var(--text-faded); font-weight:500; letter-spacing:.5px; text-transform:uppercase; }
+.session-dur{ font-size:10px; background:var(--surface2); color:var(--text-soft); padding:2px 8px; border-radius:99px; }
+.session-title{ font-family:var(--display); font-size:20px; font-weight:400; margin-bottom:4px; line-height:1.2; }
+.session-desc{ font-size:12px; color:var(--text-soft); line-height:1.5; }
+.session-reward{ margin-top:10px; font-size:11px; color:var(--gold); background:rgba(200,168,75,0.08); border:1px solid rgba(200,168,75,0.15); border-radius:8px; padding:5px 10px; display:inline-block; }
+.lesson-modal{ position:fixed; inset:0; background:var(--bg); z-index:50; display:none; flex-direction:column; }
+.lesson-modal.open{ display:flex; }
+.lesson-top{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
+.lesson-close{ background:var(--surface); border:1px solid var(--border); color:var(--text-soft); border-radius:99px; width:36px; height:36px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.lesson-session-label{ font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-faded); font-weight:500; }
+.lesson-timer{ font-family:var(--display); font-size:22px; font-style:italic; color:var(--gold); }
+.lesson-timer.urgent{ color:#E05050; animation:pulse 1s infinite; }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.5} }
+.lesson-body{ flex:1; overflow-y:auto; padding:20px 20px 0; }
+.lesson-footer{ padding:16px 20px; border-top:1px solid var(--border); display:flex; gap:10px; }
+.btn-primary{ flex:1; background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#fff; border:none; border-radius:var(--radius); padding:14px; font-size:14px; font-weight:500; cursor:pointer; font-family:var(--body); }
+.btn-secondary{ background:var(--surface); border:1px solid var(--border); color:var(--text-soft); border-radius:var(--radius); padding:14px 20px; font-size:14px; cursor:pointer; font-family:var(--body); }
+.lesson-step{ animation:fadeUp .3s ease; }
+@keyframes fadeUp{ from{opacity:0; transform:translateY(12px);} to{opacity:1; transform:translateY(0);} }
+.step-num{ font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-faded); margin-bottom:8px; font-weight:500; }
+.step-title{ font-family:var(--display); font-size:22px; font-weight:400; margin-bottom:16px; line-height:1.3; }
+.pattern-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:22px 18px; margin-bottom:14px; }
+.pattern-chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; direction:rtl; margin-bottom:16px; }
+.pchip{ font-family:var(--arabic); font-size:30px; padding:8px 16px; border-radius:12px; line-height:1.3; }
+.pchip.ozne{ background:rgba(91,141,200,0.16); color:var(--blue-light); border:1px solid rgba(91,141,200,0.3); }
+.pchip.fiil{ background:rgba(90,158,96,0.16); color:var(--green-light); border:1px solid rgba(90,158,96,0.3); }
+.pchip.nesne{ background:rgba(200,168,75,0.16); color:var(--gold-light); border:1px solid rgba(200,168,75,0.3); }
+.pchip.edat,.pchip.sabit{ background:var(--surface2); color:var(--text-soft); border:1px solid var(--border); }
+.pattern-legend{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.leg{ font-size:11px; color:var(--text-soft); display:flex; align-items:center; gap:5px; }
+.leg-dot{ width:10px; height:10px; border-radius:3px; }
+.leg-dot.ozne{ background:var(--blue-light); }
+.leg-dot.fiil{ background:var(--green-light); }
+.leg-dot.nesne{ background:var(--gold-light); }
+.info-card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px; margin-bottom:12px; }
+.info-rule{ font-size:14px; color:var(--text-soft); line-height:1.7; }
+.info-rule strong{ color:var(--gold-light); }
+.word-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:24px 20px; text-align:center; margin-bottom:16px; }
+.word-arabic{ font-family:var(--arabic); font-size:52px; color:var(--gold-light); line-height:1.4; margin-bottom:8px; direction:rtl; }
+.word-latin{ font-size:14px; color:var(--text-soft); font-style:italic; margin-bottom:4px; }
+.word-meaning{ font-size:19px; font-weight:600; }
+.speak-btn{ display:flex; align-items:center; gap:8px; margin:14px auto 0; background:rgba(200,168,75,0.1); border:1px solid rgba(200,168,75,0.2); color:var(--gold); border-radius:99px; padding:8px 18px; font-size:12px; cursor:pointer; font-family:var(--body); }
+.ex-card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:12px; }
+.ex-ar{ font-family:var(--arabic); font-size:34px; color:var(--gold-light); direction:rtl; text-align:right; line-height:1.5; margin-bottom:6px; }
+.ex-latin{ font-size:13px; color:var(--text-soft); font-style:italic; margin-bottom:2px; }
+.ex-tr{ font-size:14px; color:var(--text); }
+.build-tr{ font-size:18px; color:var(--text); text-align:center; margin-bottom:6px; font-weight:500; }
+.build-instr{ font-size:11px; color:var(--text-faded); text-align:center; margin-bottom:18px; font-style:italic; }
+.build-answer{ min-height:64px; background:var(--surface); border:1.5px dashed var(--border); border-radius:14px; padding:12px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center; direction:rtl; margin-bottom:16px; }
+.build-answer.correct{ border-color:var(--green); border-style:solid; background:rgba(90,158,96,0.08); }
+.build-answer.wrong{ border-color:#E05050; }
+.build-answer:empty::before{ content:'Kelimelere dokun →'; direction:ltr; color:var(--text-faded); font-size:12px; font-style:italic; font-family:var(--body); }
+.build-bank{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; direction:rtl; margin-bottom:8px; }
+.bchip{ font-family:var(--arabic); font-size:28px; padding:8px 16px; border-radius:12px; background:var(--surface2); color:var(--gold-light); border:1px solid var(--border); cursor:pointer; line-height:1.3; transition:all .15s; }
+.bchip:active{ transform:scale(.94); }
+.build-result{ display:none; text-align:center; margin-top:8px; }
+.build-result.show{ display:block; }
+.build-result .br-latin{ font-size:13px; color:var(--text-soft); font-style:italic; }
+.build-result .br-tr{ font-size:13px; color:var(--green-light); }
+.challenge-banner{ background:linear-gradient(135deg,rgba(200,168,75,0.16),rgba(91,141,200,0.12)); border:1px solid rgba(200,168,75,0.3); border-radius:12px; padding:10px 14px; margin-bottom:14px; text-align:center; font-size:12px; color:var(--gold-light); }
+.rquiz-q{ font-family:var(--arabic); font-size:46px; color:var(--gold-light); direction:rtl; text-align:center; line-height:1.4; margin-bottom:6px; }
+.rquiz-sub{ font-size:12px; color:var(--text-faded); text-align:center; margin-bottom:18px; font-style:italic; }
+.rquiz-opts{ display:flex; flex-direction:column; gap:10px; }
+.rquiz-opt{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; font-size:15px; cursor:pointer; transition:all .15s; font-family:var(--body); color:var(--text); text-align:left; }
+.rquiz-opt.correct{ background:rgba(90,158,96,0.2); border-color:var(--green); color:var(--green-light); }
+.rquiz-opt.wrong{ background:rgba(220,80,80,0.15); border-color:rgba(220,80,80,0.4); color:#E08080; }
+.ozet-card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:10px; }
+.ozet-ar{ font-family:var(--arabic); font-size:30px; color:var(--gold-light); direction:rtl; text-align:right; line-height:1.5; }
+.ozet-tr{ font-size:13px; color:var(--text-soft); margin-top:2px; }
+.dia-line{ margin-bottom:12px; display:flex; gap:10px; align-items:flex-start; }
+.dia-line.b{ flex-direction:row-reverse; }
+.dia-bubble{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:12px 16px; max-width:85%; }
+.dia-line.a .dia-bubble{ border-bottom-left-radius:4px; }
+.dia-line.b .dia-bubble{ border-bottom-right-radius:4px; background:var(--surface2); }
+.dia-ar{ font-family:var(--arabic); font-size:26px; color:var(--gold-light); direction:rtl; text-align:right; line-height:1.5; }
+.dia-tr{ font-size:12px; color:var(--text-soft); margin-top:4px; }
+.dia-speak{ font-size:11px; color:var(--gold); cursor:pointer; margin-top:4px; display:inline-block; }
+.express-card{ background:linear-gradient(135deg,rgba(91,141,200,0.1),rgba(90,158,96,0.08)); border:1px solid var(--border); border-radius:18px; padding:22px; margin-bottom:14px; text-align:center; }
+.express-icon{ font-size:36px; margin-bottom:10px; }
+.express-prompt{ font-size:17px; color:var(--text); font-weight:500; margin-bottom:10px; line-height:1.5; }
+.express-hint{ font-size:12px; color:var(--text-soft); font-style:italic; line-height:1.6; background:var(--surface); border-radius:10px; padding:10px 14px; }
+.flashcard{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px 20px; text-align:center; margin-bottom:16px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; }
+.fc-arabic{ font-family:var(--arabic); font-size:50px; color:var(--gold-light); direction:rtl; line-height:1.4; }
+.fc-hint{ font-size:11px; color:var(--text-faded); margin-top:14px; font-style:italic; }
+.fc-answer{ display:none; }
+.fc-answer.show{ display:block; margin-top:12px; }
+.fc-meaning{ font-size:20px; font-weight:600; }
+.fc-latin{ font-size:13px; color:var(--text-soft); font-style:italic; margin-top:4px; }
+.nb-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:24px 20px; text-align:center; margin-bottom:14px; }
+.nb-icon{ font-size:42px; margin-bottom:10px; }
+.nb-title{ font-family:var(--display); font-size:20px; margin-bottom:8px; }
+.nb-text{ font-size:13px; color:var(--text-soft); line-height:1.7; margin-bottom:16px; }
+.nb-add-btn{ background:linear-gradient(135deg,var(--blue),#3A6CA8); color:#fff; border:none; border-radius:12px; padding:14px 24px; font-size:14px; font-weight:500; cursor:pointer; font-family:var(--body); display:inline-flex; align-items:center; gap:8px; }
+.nb-preview{ margin-top:14px; }
+.nb-preview img{ max-width:100%; border-radius:12px; border:1px solid var(--border); }
+.nb-added{ color:var(--green-light); font-size:13px; margin-top:10px; }
+.celebrate{ text-align:center; padding:16px; }
+.celebrate-arabic{ font-family:var(--arabic); font-size:40px; color:var(--gold); direction:rtl; line-height:1.4; margin-bottom:8px; }
+.celebrate-title{ font-family:var(--display); font-size:22px; font-weight:300; margin-bottom:6px; }
+.celebrate-sub{ font-size:13px; color:var(--text-soft); }
+.coin-pop{ font-size:54px; margin-bottom:8px; animation:coinPop .6s ease; }
+@keyframes coinPop{ 0%{transform:scale(0) rotate(-20deg);} 60%{transform:scale(1.2) rotate(10deg);} 100%{transform:scale(1) rotate(0);} }
+.earn-badge{ display:inline-block; background:linear-gradient(135deg,var(--gold),var(--gold-light)); color:#3A2E0A; font-weight:700; font-size:22px; padding:8px 22px; border-radius:99px; margin:8px 0; font-family:var(--display); }
+.wallet-hero{ background:linear-gradient(135deg,#13241A,#1A3322); border:1px solid var(--border); border-radius:22px; padding:24px 22px; margin-bottom:16px; text-align:center; position:relative; overflow:hidden; }
+.wallet-hero::after{ content:'💰'; position:absolute; right:-10px; top:-10px; font-size:90px; opacity:0.06; }
+.wallet-label{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-soft); margin-bottom:6px; }
+.wallet-balance{ font-family:var(--display); font-size:48px; font-weight:300; color:var(--gold-light); line-height:1; }
+.wallet-balance span{ font-size:22px; }
+.wallet-sub{ display:flex; justify-content:center; gap:24px; margin-top:16px; }
+.wallet-sub-num{ font-size:18px; font-weight:600; color:var(--green-light); font-family:var(--display); }
+.wallet-sub-lbl{ font-size:10px; color:var(--text-faded); text-transform:uppercase; letter-spacing:.5px; }
+.savings-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:16px; }
+.savings-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.savings-title{ font-size:13px; font-weight:600; color:var(--gold-light); }
+.savings-amount{ font-family:var(--display); font-size:24px; color:var(--gold-light); font-style:italic; }
+.savings-goal-name{ font-size:12px; color:var(--text-soft); margin-bottom:10px; }
+.savings-bar{ background:var(--surface2); border-radius:99px; height:10px; overflow:hidden; margin-bottom:6px; }
+.savings-fill{ height:100%; border-radius:99px; background:linear-gradient(90deg,var(--gold-dark),var(--gold-light)); transition:width .5s; }
+.savings-goal-info{ font-size:11px; color:var(--text-faded); margin-bottom:14px; }
+.savings-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.save-btn{ flex:1; min-width:80px; background:var(--surface2); border:1px solid var(--border); color:var(--gold-light); border-radius:10px; padding:10px; font-size:13px; cursor:pointer; font-family:var(--body); font-weight:500; }
+.save-btn:active{ transform:scale(.97); }
+.goal-edit{ width:100%; background:none; border:none; color:var(--blue-light); font-size:11px; cursor:pointer; margin-top:10px; text-decoration:underline; font-family:var(--body); }
+.tx-list{ display:flex; flex-direction:column; gap:8px; }
+.tx-item{ background:var(--surface); border:1px solid var(--border2); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; }
+.tx-note{ font-size:13px; }
+.tx-date{ font-size:10px; color:var(--text-faded); }
+.tx-amt{ font-size:15px; font-weight:600; }
+.tx-amt.earn{ color:var(--green-light); }
+.tx-amt.save{ color:var(--gold-light); }
+.nb-gallery{ display:flex; flex-direction:column; gap:16px; }
+.nb-day-date{ font-size:11px; color:var(--text-faded); margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px; }
+.nb-day-photos{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+.nb-photo{ position:relative; }
+.nb-photo img{ width:100%; border-radius:12px; border:1px solid var(--border); display:block; }
+.nb-photo-label{ position:absolute; bottom:6px; left:6px; background:rgba(0,0,0,0.6); color:#fff; font-size:9px; padding:2px 8px; border-radius:99px; }
+.empty-note{ text-align:center; padding:40px 20px; color:var(--text-faded); font-style:italic; font-size:13px; line-height:1.6; }
+.report-card{ background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:20px; margin-bottom:12px; }
+.report-title{ font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-faded); margin-bottom:12px; font-weight:500; }
+.report-stat{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border2); font-size:13px; }
+.report-stat:last-child{ border-bottom:none; }
+.report-val{ color:var(--green-light); font-weight:500; }
+.send-report-btn{ width:100%; background:linear-gradient(135deg,#2D5E32,var(--green)); color:#fff; border:none; border-radius:var(--radius); padding:15px; font-size:14px; font-weight:500; cursor:pointer; font-family:var(--body); margin-top:8px; box-shadow:0 4px 16px rgba(90,158,96,0.3); }
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <div class="setup-bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ</div>
+  <div class="setup-sub">Rahman ve Rahim olan Allah'ın adıyla</div>
+  <div class="setup-title">Arapça Konuşma<br>Yolculuğun</div>
+  <div class="setup-desc">Kelime ezberi değil — cümle kurma.<br>Günde 3 × 25 dakika, sıkı program.</div>
+  <input class="setup-input" id="setupName" type="text" placeholder="Adın nedir?" maxlength="20">
+  <button class="setup-btn" onclick="startApp()">Bismillah, Başla →</button>
+  <div class="setup-features">
+    <div class="setup-feature"><span>🌅</span><span><strong>Seans 1 — Yapı:</strong> Isınma + kalıp + kelimeler</span></div>
+    <div class="setup-feature"><span>☀️</span><span><strong>Seans 2 — Kurma:</strong> Cümle kur + ters mini test</span></div>
+    <div class="setup-feature"><span>🌙</span><span><strong>Seans 3 — Konuşma:</strong> Diyalog + Challenge + Günün Özeti</span></div>
+    <div class="setup-feature"><span>💰</span><span>Her seans <strong>10 ₺</strong> — cüzdanına eklenir</span></div>
+    <div class="setup-feature"><span>📓</span><span>Çalışmanı deftere yaz, fotoğrafını ekle</span></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="header-name" id="headerName"></div>
+      <div class="header-day" id="headerDay"></div>
+    </div>
+    <div class="header-right">
+      <div class="header-streak" id="headerStreak"></div>
+      <div class="header-wallet" id="headerWallet"></div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab active" onclick="switchView('today')" id="tab-today"><span class="tab-icon">📅</span><div class="tab-label">Bugün</div></div>
+    <div class="tab" onclick="switchView('wallet')" id="tab-wallet"><span class="tab-icon">💰</span><div class="tab-label">Cüzdan</div></div>
+    <div class="tab" onclick="switchView('notebook')" id="tab-notebook"><span class="tab-icon">📓</span><div class="tab-label">Defterim</div></div>
+    <div class="tab" onclick="switchView('report')" id="tab-report"><span class="tab-icon">📊</span><div class="tab-label">Rapor</div></div>
+  </div>
+
+  <div id="view-today" class="view active">
+    <div class="week-badge" id="weekBadge"></div>
+    <div class="progress-section" id="progressSection"></div>
+    <div class="sec-title">Bugünün 3 seansı</div>
+    <div class="sessions-grid" id="sessionsGrid"></div>
+  </div>
+
+  <div id="view-wallet" class="view">
+    <div class="sec-title">Cüzdanım</div>
+    <div id="walletContent"></div>
+    <div class="sec-title">Hareketler</div>
+    <div id="txList" class="tx-list"></div>
+  </div>
+
+  <div id="view-notebook" class="view">
+    <div class="sec-title">Defter çalışmalarım</div>
+    <div id="nbGallery" class="nb-gallery"></div>
+  </div>
+
+  <div id="view-report" class="view">
+    <div class="sec-title">Günlük özet</div>
+    <div id="reportContent"></div>
+    <button class="send-report-btn" onclick="sendReport()">📤 Raporu + defter fotoğraflarını gönder</button>
+    <div style="font-size:11px;color:var(--text-faded);text-align:center;margin-top:10px;font-style:italic;line-height:1.6">Telefonda paylaşım sayfası açılır — WhatsApp veya Mail seç, anne-babana gönder. Bugünün defter fotoğrafları mesaja eklenir.</div>
+  </div>
+</div>
+
+<div id="lessonModal" class="lesson-modal">
+  <div class="lesson-top">
+    <button class="lesson-close" onclick="confirmCloseLesson()">✕</button>
+    <div id="lessonSessionLabel" class="lesson-session-label"></div>
+    <div class="lesson-timer" id="lessonTimer">25:00</div>
+  </div>
+  <div class="lesson-body" id="lessonBody"></div>
+  <div class="lesson-footer" id="lessonFooter"></div>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none">
+
+<script>
+const STORAGE_KEY = 'hatice_arabic_v1';
+const EMAILJS_SERVICE = 'service_1nak2td';
+const EMAILJS_TEMPLATE = 'template_yq6pglm';
+const REWARD = 10;
+
+const CURRICULUM = [
+  {
+    title:'İsim Cümlesi — Ben / Sen / O', topic:'Özne + haber (fiilsiz cümle)',
+    rule:'Arapçada "Ben öğrenciyim" demek için fiile gerek yok. Sadece <strong>özne + haber</strong> yeter. Sen kız olduğun için "sen/o" dişil biçimde: <strong>أنتِ، هي</strong>.',
+    pattern:[ {role:'ozne',ar:'أنا'}, {role:'nesne',ar:'طالِبة'} ],
+    words:[
+      {ar:'أنا',latin:'enâ',tr:'Ben'},
+      {ar:'أنتِ',latin:'enti',tr:'Sen (kız)'},
+      {ar:'هي',latin:'hiye',tr:'O (kız)'},
+      {ar:'طالِبة',latin:'tâlibe',tr:'Öğrenci (kız)'},
+      {ar:'سَعيدة',latin:'saîde',tr:'Mutlu (kız)'},
+      {ar:'مُتعَبة',latin:"mut'abe",tr:'Yorgun (kız)'},
+    ],
+    examples:[
+      {ar:'أنا طالِبة',latin:'Enâ tâlibe',tr:'Ben öğrenciyim.'},
+      {ar:'أنتِ سَعيدة',latin:'Enti saîde',tr:'Sen mutlusun.'},
+      {ar:'هي مُتعَبة',latin:"Hiye mut'abe",tr:'O yorgun.'},
+      {ar:'أنا بِخَير',latin:'Enâ bi-hayr',tr:'Ben iyiyim.'},
+    ],
+    builds:[
+      {tr:'Ben mutluyum.', chips:['أنا','سَعيدة'], latin:'Enâ saîde'},
+      {tr:'Sen öğrencisin.', chips:['أنتِ','طالِبة'], latin:'Enti tâlibe'},
+      {tr:'O yorgun.', chips:['هي','مُتعَبة'], latin:"Hiye mut'abe"},
+    ],
+    dialogue:[
+      {s:'a',ar:'السَّلامُ عَلَيكُم، كَيفَ حالُكِ؟',tr:'Selam, nasılsın?'},
+      {s:'b',ar:'وَعَلَيكُمُ السَّلام، أنا بِخَير، الحَمدُ لله.',tr:'Aleyküm selam, iyiyim, şükür.'},
+      {s:'a',ar:'هَل أنتِ طالِبة؟',tr:'Öğrenci misin?'},
+      {s:'b',ar:'نَعَم، أنا طالِبة.',tr:'Evet, öğrenciyim.'},
+    ],
+    express:{ prompt:'Kendini tanıt.', hint:'"أنا ..." ile başla. Örnek: أنا هاتِجة، أنا طالِبة، أنا سَعيدة.' },
+    challenge:{ tr:'Ben öğrenciyim ve mutluyum.', chips:['أنا','طالِبة','وأنا','سَعيدة'], latin:'Enâ tâlibe ve enâ saîde' },
+  },
+  {
+    title:'Bu / Şu — İşaret + İsim', topic:'هذا / هذه + isim (+ sıfat)',
+    rule:'Yakındaki bir şeyi göstermek için: erkek/nötr için <strong>هذا</strong>, dişil için <strong>هذه</strong>. Sıfat ismin cinsiyetine uyar.',
+    pattern:[ {role:'ozne',ar:'هذا'}, {role:'nesne',ar:'كِتاب'} ],
+    words:[
+      {ar:'هذا',latin:'hâzâ',tr:'Bu (eril)'},
+      {ar:'هذه',latin:'hâzihî',tr:'Bu (dişil)'},
+      {ar:'كِتاب',latin:'kitâb',tr:'Kitap'},
+      {ar:'بَيت',latin:'beyt',tr:'Ev'},
+      {ar:'جَميلة',latin:'cemîle',tr:'Güzel (dişil)'},
+      {ar:'كَبير',latin:'kebîr',tr:'Büyük (eril)'},
+    ],
+    examples:[
+      {ar:'هذا كِتاب',latin:'Hâzâ kitâb',tr:'Bu bir kitap.'},
+      {ar:'هذه بِنت',latin:'Hâzihî bint',tr:'Bu bir kız.'},
+      {ar:'هذا البَيتُ كَبير',latin:'Hâzâ-l-beytu kebîr',tr:'Bu ev büyük.'},
+      {ar:'هذه البِنتُ جَميلة',latin:'Hâzihî-l-bintu cemîle',tr:'Bu kız güzel.'},
+    ],
+    builds:[
+      {tr:'Bu bir ev.', chips:['هذا','بَيت'], latin:'Hâzâ beyt'},
+      {tr:'Bu bir kitap.', chips:['هذا','كِتاب'], latin:'Hâzâ kitâb'},
+      {tr:'Bu kız güzel.', chips:['هذه','البِنتُ','جَميلة'], latin:'Hâzihî-l-bintu cemîle'},
+    ],
+    dialogue:[
+      {s:'a',ar:'ما هذا؟',tr:'Bu nedir?'},
+      {s:'b',ar:'هذا كِتاب.',tr:'Bu bir kitap.'},
+      {s:'a',ar:'وما هذه؟',tr:'Peki bu nedir?'},
+      {s:'b',ar:'هذه حَقيبة.',tr:'Bu bir çanta.'},
+    ],
+    express:{ prompt:'Etrafındaki 3 şeyi göster ve söyle.', hint:'"هذا ..." / "هذه ..." kullan. Örnek: هذا قَلَم، هذه طاوِلة.' },
+    challenge:{ tr:'Bu bir kitap ve büyük.', chips:['هذا','كِتاب','وهو','كَبير'], latin:'Hâzâ kitâb ve huve kebîr' },
+  },
+  {
+    title:'İyelik — Benim / Senin', topic:'İsim + ـي / ـكِ / ـها (eklerle sahiplik)',
+    rule:'Sahipliği kelimenin <strong>sonuna ek</strong> getirerek söyleriz: ben → <strong>ـي</strong>, sen(kız) → <strong>ـكِ</strong>. Örn: كِتاب → كِتابي (kitabım).',
+    pattern:[ {role:'ozne',ar:'هذا'}, {role:'nesne',ar:'كِتابي'} ],
+    words:[
+      {ar:'اِسمي',latin:'ismî',tr:'Adım'},
+      {ar:'كِتابي',latin:'kitâbî',tr:'Kitabım'},
+      {ar:'بَيتي',latin:'beytî',tr:'Evim'},
+      {ar:'أُمّي',latin:'ummî',tr:'Annem'},
+      {ar:'أبي',latin:'ebî',tr:'Babam'},
+      {ar:'بَيتُكِ',latin:'beytuki',tr:'Evin (kız)'},
+    ],
+    examples:[
+      {ar:'اِسمي هاتِجة',latin:'İsmî Hâtice',tr:'Adım Hatice.'},
+      {ar:'هذا كِتابي',latin:'Hâzâ kitâbî',tr:'Bu benim kitabım.'},
+      {ar:'هذه أُمّي',latin:'Hâzihî ummî',tr:'Bu benim annem.'},
+      {ar:'أينَ بَيتُكِ؟',latin:'Eyne beytuki?',tr:'Evin nerede?'},
+    ],
+    builds:[
+      {tr:'Adım Hatice.', chips:['اِسمي','هاتِجة'], latin:'İsmî Hâtice'},
+      {tr:'Bu benim evim.', chips:['هذا','بَيتي'], latin:'Hâzâ beytî'},
+      {tr:'Bu benim annem.', chips:['هذه','أُمّي'], latin:'Hâzihî ummî'},
+    ],
+    dialogue:[
+      {s:'a',ar:'ما اسمُكِ؟',tr:'Adın ne?'},
+      {s:'b',ar:'اِسمي هاتِجة. وأنتِ؟',tr:'Adım Hatice. Ya sen?'},
+      {s:'a',ar:'اِسمي مَريَم.',tr:'Adım Meryem.'},
+      {s:'b',ar:'تَشَرَّفنا!',tr:'Memnun oldum!'},
+    ],
+    express:{ prompt:'Aileni tanıt.', hint:'"هذه أُمّي، هذا أبي ..." de. Adınla başlayabilirsin: اِسمي ...' },
+    challenge:{ tr:'Adım Hatice ve bu benim evim.', chips:['اِسمي','هاتِجة','وهذا','بَيتي'], latin:'İsmî Hâtice ve hâzâ beytî' },
+  },
+  {
+    title:'Yer & Var — Nerede?', topic:'في / على / تحت + yer, هُناكَ (var)',
+    rule:'Bir şeyin yerini söylemek için: <strong>في</strong> (içinde), <strong>على</strong> (üstünde), <strong>تحتَ</strong> (altında). "Var" demek için <strong>هُناكَ</strong>.',
+    pattern:[ {role:'nesne',ar:'الكِتابُ'}, {role:'edat',ar:'على'}, {role:'nesne',ar:'الطّاوِلة'} ],
+    words:[
+      {ar:'في',latin:'fî',tr:'İçinde / -de'},
+      {ar:'على',latin:'alâ',tr:'Üstünde'},
+      {ar:'تحتَ',latin:'tahta',tr:'Altında'},
+      {ar:'هُناكَ',latin:'hunâke',tr:'Var / orada'},
+      {ar:'الطّاوِلة',latin:'et-tâvile',tr:'Masa'},
+      {ar:'الغُرفة',latin:'el-ğurfe',tr:'Oda'},
+    ],
+    examples:[
+      {ar:'الكِتابُ على الطّاوِلة',latin:'El-kitâbu ale-t-tâvile',tr:'Kitap masanın üstünde.'},
+      {ar:'أنا في البَيت',latin:'Enâ fi-l-beyt',tr:'Ben evdeyim.'},
+      {ar:'هُناكَ ماءٌ في الغُرفة',latin:'Hunâke mâun fi-l-ğurfe',tr:'Odada su var.'},
+      {ar:'القَلَمُ تحتَ الكِتاب',latin:'El-kalemu tahte-l-kitâb',tr:'Kalem kitabın altında.'},
+    ],
+    builds:[
+      {tr:'Ben evdeyim.', chips:['أنا','في','البَيت'], latin:'Enâ fi-l-beyt'},
+      {tr:'Kitap masanın üstünde.', chips:['الكِتابُ','على','الطّاوِلة'], latin:'El-kitâbu ale-t-tâvile'},
+      {tr:'Odada su var.', chips:['هُناكَ','ماءٌ','في','الغُرفة'], latin:'Hunâke mâun fi-l-ğurfe'},
+    ],
+    dialogue:[
+      {s:'a',ar:'أينَ أنتِ الآن؟',tr:'Şu an neredesin?'},
+      {s:'b',ar:'أنا في غُرفَتي.',tr:'Odamdayım.'},
+      {s:'a',ar:'أينَ الكِتاب؟',tr:'Kitap nerede?'},
+      {s:'b',ar:'الكِتابُ على الطّاوِلة.',tr:'Kitap masanın üstünde.'},
+    ],
+    express:{ prompt:'Şu an neredesin ve yanında ne var?', hint:'في / على kullan. Örnek: أنا في المَطبَخ، الماءُ على الطّاوِلة.' },
+    challenge:{ tr:'Ben evdeyim ve kitap masada.', chips:['أنا','في','البَيت','والكِتابُ','على','الطّاوِلة'], latin:'Enâ fi-l-beyt ve-l-kitâbu ale-t-tâvile' },
+  },
+  {
+    title:'Şimdiki Zaman — Yapıyorum', topic:'Muzari fiil: أ / تـ + fiil (tekil)',
+    rule:'Şu an yaptığın işi söylemek için fiilin başına ek gelir: ben → <strong>أ</strong>, o(kız) → <strong>تـ</strong>. Örn: yazmak → أكتُب (yazıyorum).',
+    pattern:[ {role:'ozne',ar:'أنا'}, {role:'fiil',ar:'أقرأُ'}, {role:'nesne',ar:'القُرآن'} ],
+    words:[
+      {ar:'أقرأُ',latin:'akrau',tr:'Okuyorum'},
+      {ar:'أكتُبُ',latin:'aktubu',tr:'Yazıyorum'},
+      {ar:'آكُلُ',latin:'âkulu',tr:'Yiyorum'},
+      {ar:'أشرَبُ',latin:'eşrabu',tr:'İçiyorum'},
+      {ar:'أذهَبُ',latin:'ezhebu',tr:'Gidiyorum'},
+      {ar:'تَكتُبُ',latin:'tektubu',tr:'(O kız) yazıyor'},
+    ],
+    examples:[
+      {ar:'أنا أقرأُ القُرآن',latin:"Enâ akrau-l-Kur'ân",tr:'Ben Kuran okuyorum.'},
+      {ar:'هي تَكتُبُ الدَّرس',latin:'Hiye tektubu-d-ders',tr:'O dersi yazıyor.'},
+      {ar:'أنا آكُلُ التُّفّاح',latin:'Enâ âkulu-t-tuffâh',tr:'Elma yiyorum.'},
+      {ar:'أشرَبُ الماء',latin:'Eşrabu-l-mâ',tr:'Su içiyorum.'},
+    ],
+    builds:[
+      {tr:'Su içiyorum.', chips:['أنا','أشرَبُ','الماء'], latin:'Enâ eşrabu-l-mâ'},
+      {tr:'Kuran okuyorum.', chips:['أقرأُ','القُرآن'], latin:"Akrau-l-Kur'ân"},
+      {tr:'O dersi yazıyor.', chips:['هي','تَكتُبُ','الدَّرس'], latin:'Hiye tektubu-d-ders'},
+    ],
+    dialogue:[
+      {s:'a',ar:'ماذا تَفعَلينَ الآن؟',tr:'Şu an ne yapıyorsun?'},
+      {s:'b',ar:'أقرأُ القُرآن.',tr:'Kuran okuyorum.'},
+      {s:'a',ar:'جَميل! وأُختُكِ؟',tr:'Güzel! Ya kardeşin?'},
+      {s:'b',ar:'هي تَكتُبُ الدَّرس.',tr:'O dersini yazıyor.'},
+    ],
+    express:{ prompt:'Şu an ne yapıyorsun? 2 cümle yaz.', hint:'"أنا ..." + fiil. Örnek: أنا أتَعَلَّمُ العَرَبية، أشرَبُ الشّاي.' },
+    challenge:{ tr:'Kuran okuyorum ve su içiyorum.', chips:['أقرأُ','القُرآن','وأشرَبُ','الماء'], latin:"Akrau-l-Kur'ân ve eşrabu-l-mâ" },
+  },
+  {
+    title:'İstek & İhtiyaç', topic:'أُريدُ / لا أُريدُ / أحتاجُ + nesne',
+    rule:'İstemek: <strong>أُريدُ</strong>, istememek: <strong>لا أُريدُ</strong>, ihtiyaç: <strong>أحتاجُ</strong>. Sonrasına istediğin şeyi koy.',
+    pattern:[ {role:'fiil',ar:'أُريدُ'}, {role:'nesne',ar:'ماءً'} ],
+    words:[
+      {ar:'أُريدُ',latin:'urîdu',tr:'İstiyorum'},
+      {ar:'لا أُريدُ',latin:'lâ urîdu',tr:'İstemiyorum'},
+      {ar:'أحتاجُ',latin:'ahtâcu',tr:'İhtiyacım var'},
+      {ar:'مُساعَدة',latin:'musâade',tr:'Yardım'},
+      {ar:'راحة',latin:'râha',tr:'Dinlenme'},
+      {ar:'طَعام',latin:'taâm',tr:'Yemek'},
+    ],
+    examples:[
+      {ar:'أُريدُ ماءً',latin:'Urîdu mâen',tr:'Su istiyorum.'},
+      {ar:'لا أُريدُ طَعاماً',latin:'Lâ urîdu taâmen',tr:'Yemek istemiyorum.'},
+      {ar:'أحتاجُ مُساعَدة',latin:'Ahtâcu musâade',tr:'Yardıma ihtiyacım var.'},
+      {ar:'أُريدُ أن أنامَ',latin:'Urîdu en enâme',tr:'Uyumak istiyorum.'},
+    ],
+    builds:[
+      {tr:'Su istiyorum.', chips:['أُريدُ','ماءً'], latin:'Urîdu mâen'},
+      {tr:'Yardıma ihtiyacım var.', chips:['أحتاجُ','مُساعَدة'], latin:'Ahtâcu musâade'},
+      {tr:'Yemek istemiyorum.', chips:['لا أُريدُ','طَعاماً'], latin:'Lâ urîdu taâmen'},
+    ],
+    dialogue:[
+      {s:'a',ar:'ماذا تُريدينَ؟',tr:'Ne istersin?'},
+      {s:'b',ar:'أُريدُ ماءً، مِن فَضلِكِ.',tr:'Su istiyorum, lütfen.'},
+      {s:'a',ar:'وهَل تُريدينَ طَعاماً؟',tr:'Yemek de ister misin?'},
+      {s:'b',ar:'لا، شُكراً. أحتاجُ راحة.',tr:'Hayır, teşekkürler. Dinlenmeye ihtiyacım var.'},
+    ],
+    express:{ prompt:'Şu an ne istiyorsun, neye ihtiyacın var?', hint:'أُريدُ ... / أحتاجُ ... kullan.' },
+    challenge:{ tr:'Su istiyorum ve yardıma ihtiyacım var.', chips:['أُريدُ','ماءً','وأحتاجُ','مُساعَدة'], latin:'Urîdu mâen ve ahtâcu musâade' },
+  },
+  {
+    title:'Soru Kurma', topic:'ما / أينَ / متى / كيفَ / مَن',
+    rule:'Soru kelimeleri: <strong>ما</strong> (ne), <strong>أينَ</strong> (nerede), <strong>متى</strong> (ne zaman), <strong>كيفَ</strong> (nasıl), <strong>مَن</strong> (kim). Cümlenin başına gelir.',
+    pattern:[ {role:'fiil',ar:'أينَ'}, {role:'ozne',ar:'أُمُّكِ'} ],
+    words:[
+      {ar:'ما',latin:'mâ',tr:'Ne'},
+      {ar:'أينَ',latin:'eyne',tr:'Nerede'},
+      {ar:'متى',latin:'metâ',tr:'Ne zaman'},
+      {ar:'كيفَ',latin:'keyfe',tr:'Nasıl'},
+      {ar:'مَن',latin:'men',tr:'Kim'},
+      {ar:'لِماذا',latin:'limâzâ',tr:'Neden'},
+    ],
+    examples:[
+      {ar:'ما اسمُكِ؟',latin:'Me-smuki?',tr:'Adın ne?'},
+      {ar:'أينَ تَذهَبينَ؟',latin:'Eyne tezhebîne?',tr:'Nereye gidiyorsun?'},
+      {ar:'كيفَ حالُكِ؟',latin:'Keyfe hâluki?',tr:'Nasılsın?'},
+      {ar:'مَن هذا؟',latin:'Men hâzâ?',tr:'Bu kim?'},
+    ],
+    builds:[
+      {tr:'Bu kim?', chips:['مَن','هذا'], latin:'Men hâzâ'},
+      {tr:'Annen nerede?', chips:['أينَ','أُمُّكِ'], latin:'Eyne ummuki'},
+      {tr:'Ne istersin?', chips:['ماذا','تُريدينَ'], latin:'Mâzâ turîdîne'},
+    ],
+    dialogue:[
+      {s:'a',ar:'مَن هذه؟',tr:'Bu kim?'},
+      {s:'b',ar:'هذه أُختي.',tr:'Bu kız kardeşim.'},
+      {s:'a',ar:'ما اسمُها؟',tr:'Adı ne?'},
+      {s:'b',ar:'اسمُها كُبرى.',tr:'Adı Kübra.'},
+    ],
+    express:{ prompt:'Bir arkadaşına soracağın 3 soru yaz.', hint:'ما / أينَ / كيفَ ile başla.' },
+    challenge:{ tr:'Bu kim ve adı ne?', chips:['مَن','هذا','وما','اسمُهُ'], latin:'Men hâzâ ve me-smuhu' },
+  },
+  {
+    title:'Geçmiş Zaman — Yaptım', topic:'Mazi fiil: ـتُ (ben yaptım)',
+    rule:'Geçmişte yaptığın işi söylemek için fiilin sonuna <strong>ـتُ</strong> ekle: ذَهَب → ذَهَبتُ (gittim), أكَل → أكَلتُ (yedim).',
+    pattern:[ {role:'fiil',ar:'قَرأتُ'}, {role:'nesne',ar:'القُرآن'} ],
+    words:[
+      {ar:'ذَهَبتُ',latin:'zehebtu',tr:'Gittim'},
+      {ar:'أكَلتُ',latin:'ekeltu',tr:'Yedim'},
+      {ar:'قَرأتُ',latin:"kara'tu",tr:'Okudum'},
+      {ar:'شَرِبتُ',latin:'şeribtu',tr:'İçtim'},
+      {ar:'كَتَبتُ',latin:'ketebtu',tr:'Yazdım'},
+      {ar:'صَلَّيتُ',latin:'salleytu',tr:'Namaz kıldım'},
+    ],
+    examples:[
+      {ar:'ذَهَبتُ إلى المَدرسة',latin:'Zehebtu ile-l-medrese',tr:'Okula gittim.'},
+      {ar:'قَرأتُ القُرآنَ اليَوم',latin:"Kara'tu-l-Kur'âne-l-yevm",tr:'Bugün Kuran okudum.'},
+      {ar:'أكَلتُ التُّفّاح',latin:'Ekeltu-t-tuffâh',tr:'Elma yedim.'},
+      {ar:'صَلَّيتُ الفَجر',latin:'Salleytu-l-fecr',tr:'Sabah namazı kıldım.'},
+    ],
+    builds:[
+      {tr:'Kuran okudum.', chips:['قَرأتُ','القُرآن'], latin:"Kara'tu-l-Kur'ân"},
+      {tr:'Okula gittim.', chips:['ذَهَبتُ','إلى','المَدرسة'], latin:'Zehebtu ile-l-medrese'},
+      {tr:'Namaz kıldım.', chips:['صَلَّيتُ'], latin:'Salleytu'},
+    ],
+    dialogue:[
+      {s:'a',ar:'ماذا فَعَلتِ اليَوم؟',tr:'Bugün ne yaptın?'},
+      {s:'b',ar:'صَلَّيتُ وقَرأتُ القُرآن.',tr:'Namaz kıldım ve Kuran okudum.'},
+      {s:'a',ar:'وهَل ذَهَبتِ إلى المَدرسة؟',tr:'Okula gittin mi?'},
+      {s:'b',ar:'نَعَم، ذَهَبتُ في الصَّباح.',tr:'Evet, sabah gittim.'},
+    ],
+    express:{ prompt:'Bugün ne yaptın? 3 cümle yaz.', hint:'ـتُ ekiyle: ذَهَبتُ، قَرأتُ، أكَلتُ.' },
+    challenge:{ tr:'Okula gittim ve Kuran okudum.', chips:['ذَهَبتُ','إلى','المَدرسة','وقَرأتُ','القُرآن'], latin:"Zehebtu ile-l-medrese ve kara'tu-l-Kur'ân" },
+  },
+  {
+    title:'Rutin Anlatma — Sonra', topic:'ثُمَّ / قَبلَ / بَعدَ ile cümle bağlama',
+    rule:'Sıralı işleri bağlamak için: <strong>ثُمَّ</strong> (sonra), <strong>بَعدَ</strong> (-den sonra), <strong>قَبلَ</strong> (-den önce). Cümleleri zincir gibi bağlarsın.',
+    pattern:[ {role:'fiil',ar:'أُصَلّي'}, {role:'sabit',ar:'ثُمَّ'}, {role:'fiil',ar:'أقرأُ'} ],
+    words:[
+      {ar:'ثُمَّ',latin:'summe',tr:'Sonra'},
+      {ar:'بَعدَ',latin:"ba'de",tr:'-den sonra'},
+      {ar:'قَبلَ',latin:'kable',tr:'-den önce'},
+      {ar:'في الصَّباح',latin:'fi-s-sabâh',tr:'Sabah'},
+      {ar:'في المَساء',latin:'fi-l-mesâ',tr:'Akşam'},
+      {ar:'كُلَّ يَوم',latin:'kulle yevm',tr:'Her gün'},
+    ],
+    examples:[
+      {ar:'أستَيقِظُ ثُمَّ أُصَلّي',latin:'Esteykızu summe usallî',tr:'Uyanırım sonra namaz kılarım.'},
+      {ar:'أقرأُ القُرآنَ بَعدَ الصَّلاة',latin:"Akrau-l-Kur'âne ba'de-s-salâh",tr:'Namazdan sonra Kuran okurum.'},
+      {ar:'كُلَّ يَوم أتَعَلَّمُ العَرَبية',latin:'Kulle yevm eteallemu-l-arabiyye',tr:'Her gün Arapça öğrenirim.'},
+      {ar:'في الصَّباح أشرَبُ الحَليب',latin:'Fi-s-sabâh eşrabu-l-halîb',tr:'Sabah süt içerim.'},
+    ],
+    builds:[
+      {tr:'Uyanırım sonra namaz kılarım.', chips:['أستَيقِظُ','ثُمَّ','أُصَلّي'], latin:'Esteykızu summe usallî'},
+      {tr:'Her gün Arapça öğrenirim.', chips:['كُلَّ يَوم','أتَعَلَّمُ','العَرَبية'], latin:'Kulle yevm eteallemu-l-arabiyye'},
+      {tr:'Namazdan sonra Kuran okurum.', chips:['أقرأُ','القُرآن','بَعدَ','الصَّلاة'], latin:"Akrau-l-Kur'ân ba'de-s-salâh"},
+    ],
+    dialogue:[
+      {s:'a',ar:'ماذا تَفعَلينَ في الصَّباح؟',tr:'Sabah ne yaparsın?'},
+      {s:'b',ar:'أستَيقِظُ ثُمَّ أُصَلّي الفَجر.',tr:'Uyanırım sonra sabah namazı kılarım.'},
+      {s:'a',ar:'وبَعدَ ذلك؟',tr:'Ondan sonra?'},
+      {s:'b',ar:'أقرأُ القُرآن ثُمَّ أتَعَلَّمُ العَرَبية.',tr:'Kuran okurum sonra Arapça öğrenirim.'},
+    ],
+    express:{ prompt:'Sabah rutinini sırayla anlat.', hint:'ثُمَّ ile cümleleri bağla. Örnek: أستَيقِظُ ثُمَّ ... ثُمَّ ...' },
+    challenge:{ tr:'Uyanırım sonra namaz kılarım sonra Kuran okurum.', chips:['أستَيقِظُ','ثُمَّ','أُصَلّي','ثُمَّ','أقرأُ','القُرآن'], latin:"Esteykızu summe usallî summe akrau-l-Kur'ân" },
+  },
+  {
+    title:'Duygular & Haller', topic:'أنا + hal sıfatı (nasıl hissediyorum)',
+    rule:'Nasıl hissettiğini söylemek için: <strong>أنا</strong> + duygu. Sen kız olduğun için dişil biçim: سَعيدة، حَزينة، مُتعَبة.',
+    pattern:[ {role:'ozne',ar:'أنا'}, {role:'nesne',ar:'سَعيدة'} ],
+    words:[
+      {ar:'سَعيدة',latin:'saîde',tr:'Mutlu'},
+      {ar:'حَزينة',latin:'hazîne',tr:'Üzgün'},
+      {ar:'مُتعَبة',latin:"mut'abe",tr:'Yorgun'},
+      {ar:'مَريضة',latin:'marîda',tr:'Hasta'},
+      {ar:'خائِفة',latin:'hâife',tr:'Korkmuş'},
+      {ar:'بِخَير',latin:'bi-hayr',tr:'İyi'},
+    ],
+    examples:[
+      {ar:'أنا سَعيدة اليَوم',latin:'Enâ saîde-l-yevm',tr:'Bugün mutluyum.'},
+      {ar:'أنا مُتعَبة قَليلاً',latin:"Enâ mut'abe kalîlen",tr:'Biraz yorgunum.'},
+      {ar:'الحَمدُ لله أنا بِخَير',latin:'El-hamdu lillâh enâ bi-hayr',tr:'Şükür, iyiyim.'},
+      {ar:'لِماذا أنتِ حَزينة؟',latin:'Limâzâ enti hazîne?',tr:'Neden üzgünsün?'},
+    ],
+    builds:[
+      {tr:'Bugün mutluyum.', chips:['أنا','سَعيدة','اليَوم'], latin:'Enâ saîde-l-yevm'},
+      {tr:'Biraz yorgunum.', chips:['أنا','مُتعَبة','قَليلاً'], latin:"Enâ mut'abe kalîlen"},
+      {tr:'Şükür, iyiyim.', chips:['الحَمدُ لله','أنا','بِخَير'], latin:'El-hamdu lillâh enâ bi-hayr'},
+    ],
+    dialogue:[
+      {s:'a',ar:'كيفَ حالُكِ اليَوم؟',tr:'Bugün nasılsın?'},
+      {s:'b',ar:'الحَمدُ لله، أنا سَعيدة.',tr:'Şükür, mutluyum.'},
+      {s:'a',ar:'وأُختُكِ؟',tr:'Kardeşin?'},
+      {s:'b',ar:'هي مُتعَبة قَليلاً.',tr:'O biraz yorgun.'},
+    ],
+    express:{ prompt:'Şu an nasıl hissediyorsun ve neden?', hint:'أنا + duygu. Örnek: أنا سَعيدة لِأنّي تَعَلَّمتُ العَرَبية.' },
+    challenge:{ tr:'Bugün mutluyum çünkü Arapça öğrendim.', chips:['أنا','سَعيدة','لِأنّي','تَعَلَّمتُ','العَرَبية'], latin:'Enâ saîde li-ennî teallemtu-l-arabiyye' },
+  },
+  {
+    title:'Gelecek & Plan', topic:'سـ + fiil (yapacağım), إن شاء الله',
+    rule:'Gelecekte yapacağın işi söylemek için fiilin başına <strong>سـ</strong> ekle: أذهَب → سَأذهَب (gideceğim). "İnşallah" → <strong>إن شاء الله</strong>.',
+    pattern:[ {role:'fiil',ar:'سَأذهَبُ'}, {role:'sabit',ar:'غَداً'} ],
+    words:[
+      {ar:'سَأذهَبُ',latin:'se-ezhebu',tr:'Gideceğim'},
+      {ar:'سَأقرأُ',latin:'se-akrau',tr:'Okuyacağım'},
+      {ar:'سَأتَعَلَّمُ',latin:'se-eteallemu',tr:'Öğreneceğim'},
+      {ar:'غَداً',latin:'ğaden',tr:'Yarın'},
+      {ar:'إن شاء الله',latin:'inşâallah',tr:'İnşallah'},
+      {ar:'بَعدَ قَليل',latin:"ba'de kalîl",tr:'Birazdan'},
+    ],
+    examples:[
+      {ar:'سَأذهَبُ إلى المَدرسة غَداً',latin:'Se-ezhebu ile-l-medrese ğaden',tr:'Yarın okula gideceğim.'},
+      {ar:'إن شاء الله سَأتَعَلَّمُ العَرَبية',latin:'İnşâallah se-eteallemu-l-arabiyye',tr:'İnşallah Arapça öğreneceğim.'},
+      {ar:'سَأقرأُ القُرآن بَعدَ قَليل',latin:"Se-akrau-l-Kur'ân ba'de kalîl",tr:'Birazdan Kuran okuyacağım.'},
+      {ar:'سَأُصَلّي ثُمَّ سَأنام',latin:'Se-usallî summe se-enâm',tr:'Namaz kılacağım sonra uyuyacağım.'},
+    ],
+    builds:[
+      {tr:'Yarın okula gideceğim.', chips:['سَأذهَبُ','إلى','المَدرسة','غَداً'], latin:'Se-ezhebu ile-l-medrese ğaden'},
+      {tr:'İnşallah Arapça öğreneceğim.', chips:['إن شاء الله','سَأتَعَلَّمُ','العَرَبية'], latin:'İnşâallah se-eteallemu-l-arabiyye'},
+      {tr:'Birazdan Kuran okuyacağım.', chips:['سَأقرأُ','القُرآن','بَعدَ قَليل'], latin:"Se-akrau-l-Kur'ân ba'de kalîl"},
+    ],
+    dialogue:[
+      {s:'a',ar:'ماذا سَتَفعَلينَ غَداً؟',tr:'Yarın ne yapacaksın?'},
+      {s:'b',ar:'سَأذهَبُ إلى الدَّرس إن شاء الله.',tr:'İnşallah derse gideceğim.'},
+      {s:'a',ar:'وبَعدَ الدَّرس؟',tr:'Dersten sonra?'},
+      {s:'b',ar:'سَأقرأُ القُرآن في البَيت.',tr:'Evde Kuran okuyacağım.'},
+    ],
+    express:{ prompt:'Yarın ne yapacaksın? 2 cümle yaz.', hint:'سـ + fiil, إن شاء الله ekle.' },
+    challenge:{ tr:'Yarın okula gideceğim inşallah.', chips:['سَأذهَبُ','إلى','المَدرسة','غَداً','إن شاء الله'], latin:'Se-ezhebu ile-l-medrese ğaden inşâallah' },
+  },
+  {
+    title:'Pekiştirme — Kendini Anlat', topic:'Tüm kalıpları birleştir, serbest konuşma',
+    rule:'Artık öğrendiğin her şeyi bağla: isim cümlesi + iyelik + şimdiki/geçmiş/gelecek + duygu. Kendini bir paragrafla anlat.',
+    pattern:[ {role:'ozne',ar:'أنا'}, {role:'fiil',ar:'أتَعَلَّمُ'}, {role:'nesne',ar:'العَرَبية'} ],
+    words:[
+      {ar:'أتَكَلَّمُ',latin:'etekellemu',tr:'Konuşuyorum'},
+      {ar:'العَرَبية',latin:'el-arabiyye',tr:'Arapça'},
+      {ar:'جَيّداً',latin:'ceyyiden',tr:'İyi (bir şekilde)'},
+      {ar:'أُحِبُّ',latin:'uhibbu',tr:'Seviyorum'},
+      {ar:'هَدَفي',latin:'hedefî',tr:'Hedefim'},
+      {ar:'الحَمدُ لله',latin:'el-hamdu lillâh',tr:'Allah\'a şükür'},
+    ],
+    examples:[
+      {ar:'اسمي هاتِجة، أنا طالِبة',latin:'İsmî Hâtice, enâ tâlibe',tr:'Adım Hatice, öğrenciyim.'},
+      {ar:'كُلَّ يَوم أقرأُ القُرآن',latin:"Kulle yevm akrau-l-Kur'ân",tr:'Her gün Kuran okurum.'},
+      {ar:'أُحِبُّ أن أتَعَلَّمَ العَرَبية',latin:'Uhibbu en eteallame-l-arabiyye',tr:'Arapça öğrenmeyi seviyorum.'},
+      {ar:'إن شاء الله سَأتَكَلَّمُ العَرَبية جَيّداً',latin:'İnşâallah se-etekellemu-l-arabiyye ceyyiden',tr:'İnşallah Arapçayı iyi konuşacağım.'},
+    ],
+    builds:[
+      {tr:'Adım Hatice, öğrenciyim.', chips:['اسمي','هاتِجة','أنا','طالِبة'], latin:'İsmî Hâtice, enâ tâlibe'},
+      {tr:'Arapça öğrenmeyi seviyorum.', chips:['أُحِبُّ','أن','أتَعَلَّمَ','العَرَبية'], latin:'Uhibbu en eteallame-l-arabiyye'},
+      {tr:'İnşallah Arapçayı iyi konuşacağım.', chips:['إن شاء الله','سَأتَكَلَّمُ','العَرَبية','جَيّداً'], latin:'İnşâallah se-etekellemu-l-arabiyye ceyyiden'},
+    ],
+    dialogue:[
+      {s:'a',ar:'عَرِّفي بِنَفسِكِ.',tr:'Kendini tanıt.'},
+      {s:'b',ar:'اسمي هاتِجة، أنا طالِبة وأتَعَلَّمُ العَرَبية.',tr:'Adım Hatice, öğrenciyim ve Arapça öğreniyorum.'},
+      {s:'a',ar:'ما هَدَفُكِ؟',tr:'Hedefin ne?'},
+      {s:'b',ar:'هَدَفي أن أتَكَلَّمَ العَرَبية جَيّداً إن شاء الله.',tr:'Hedefim inşallah Arapçayı iyi konuşmak.'},
+    ],
+    express:{ prompt:'Kendini tam tanıt: adın, ne yaptığın, ne sevdiğin, hedefin.', hint:'4-5 cümle. Öğrendiğin tüm kalıpları kullan.' },
+    challenge:{ tr:'Adım Hatice, öğrenciyim ve Arapça öğreniyorum.', chips:['اِسمي','هاتِجة','أنا','طالِبة','وأتَعَلَّمُ','العَرَبية'], latin:'İsmî Hâtice enâ tâlibe ve eteallemu-l-arabiyye' },
+  },
+];
+
+let state = {
+  name:'', setupDone:false, startDate:null,
+  streak:{ current:0, lastDate:null, longest:0 },
+  sessions:{},
+  wallet:{ balance:0, savings:0, totalEarned:0 },
+  transactions:[],
+  savingsGoal:{ name:'Yeni bir kitap', target:300 },
+  notebookPhotos:{},
+};
+function todayKey(){ return new Date().toISOString().split('T')[0]; }
+function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
+function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ alert('Hafıza dolu olabilir — eski defter fotoğraflarını silmen gerekebilir.'); } }
+
+function getWeekNum(){ if(!state.startDate) return 1; const d=Math.floor((new Date()-new Date(state.startDate))/(1000*60*60*24*7)); return Math.min(d+1,12); }
+function getWeek(){ return CURRICULUM[Math.min(getWeekNum()-1,11)]; }
+
+function startApp(){
+  const n=document.getElementById('setupName').value.trim();
+  if(!n){ document.getElementById('setupName').focus(); return; }
+  state.name=n; state.setupDone=true; state.startDate=todayKey(); saveState(); initApp();
+}
+
+function initApp(){
+  document.getElementById('setup').style.display='none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('headerName').textContent=state.name+'\'ın Arapçası';
+  const days=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  const now=new Date();
+  document.getElementById('headerDay').textContent=days[now.getDay()]+', '+now.toLocaleDateString('tr-TR');
+  updateHeader(); renderToday(); renderWallet(); renderNotebook(); renderReport();
+}
+function updateHeader(){
+  document.getElementById('headerStreak').textContent = state.streak.current>0 ? '🔥 '+state.streak.current+' gün' : '✨ Bugün başla';
+  document.getElementById('headerWallet').textContent = '💰 '+state.wallet.balance+' ₺';
+}
+function updateStreak(){
+  const t=todayKey(); const ts=state.sessions[t]||{};
+  if(ts.s1||ts.s2||ts.s3){
+    if(state.streak.lastDate!==t){
+      const y=new Date(); y.setDate(y.getDate()-1); const yk=y.toISOString().split('T')[0];
+      state.streak.current = (state.streak.lastDate===yk) ? state.streak.current+1 : 1;
+      state.streak.lastDate=t; state.streak.longest=Math.max(state.streak.longest,state.streak.current);
+      saveState();
+    }
+  }
+  updateHeader();
+}
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('tab-'+v).classList.add('active');
+  if(v==='wallet') renderWallet();
+  if(v==='notebook') renderNotebook();
+  if(v==='report') renderReport();
+}
+
+function renderToday(){
+  const w=getWeek(), wn=getWeekNum(), t=todayKey(), ts=state.sessions[t]||{};
+  document.getElementById('weekBadge').innerHTML='<div class="week-num">'+wn+'</div><div class="week-info"><div class="week-title">'+w.title+'</div><div class="week-sub">'+w.topic+'</div></div>';
+  const done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
+  const pct=Math.round(done/3*100);
+  document.getElementById('progressSection').innerHTML='<div class="progress-header"><div class="progress-label">Bugün tamamlandı</div><div class="progress-val">'+done+'/3 seans • '+(done*25)+' dk • +'+(done*REWARD)+' ₺</div></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div>';
+  const S=[
+    {k:'s1',icon:'🌅',label:'Sabah',time:'Seans 1',desc:'Isınma + günün kalıbı + kelimeler',cls:'s1',ttl:'Yapı'},
+    {k:'s2',icon:'☀️',label:'Öğle',time:'Seans 2',desc:'Cümle kurma + ters mini test',cls:'s2',ttl:'Kurma'},
+    {k:'s3',icon:'🌙',label:'Akşam',time:'Seans 3',desc:'Diyalog + Challenge + Günün Özeti + Defter',cls:'s3',ttl:'Konuşma'},
+  ];
+  document.getElementById('sessionsGrid').innerHTML=S.map(function(s){
+    return '<div class="session-card '+s.cls+' '+(ts[s.k]?'done':'')+'" onclick="'+(ts[s.k]?'':"openLesson('"+s.k+"')")+'">'
+      +'<div class="session-head"><div class="session-time">'+s.icon+' '+s.label+' · '+s.time+'</div><div class="session-dur">25 dk</div></div>'
+      +'<div class="session-title">'+s.ttl+'</div>'
+      +'<div class="session-desc">'+s.desc+'</div>'
+      +'<div class="session-reward">💰 Tamamlayınca +'+REWARD+' ₺</div></div>';
+  }).join('');
+}
+
+let curSession=null, lessonStep=0, lessonSteps=[], timerInt=null, timerSec=25*60;
+function openLesson(k){
+  curSession=k; lessonStep=0;
+  const w=getWeek();
+  lessonSteps=buildSteps(k,w);
+  const labels={s1:'🌅 Seans 1 — Yapı',s2:'☀️ Seans 2 — Kurma',s3:'🌙 Seans 3 — Konuşma + Defter'};
+  document.getElementById('lessonSessionLabel').textContent=labels[k];
+  document.getElementById('lessonModal').classList.add('open');
+  startTimer(); renderStep();
+}
+function buildSteps(k,w){
+  const steps=[]; const wn=getWeekNum();
+  const prev = wn>1 ? CURRICULUM[wn-2] : null;
+  if(k==='s1'){
+    steps.push({type:'intro',title:w.title,body:'Önce kısa bir ısınma, sonra günün kalıbı. Her kelimeyi <strong>sesli</strong> tekrar et.'});
+    if(prev){ prev.words.slice(0,2).forEach(function(word){ steps.push({type:'flashcard',word:word,warm:true}); }); }
+    steps.push({type:'pattern',w:w});
+    steps.push({type:'rule',w:w});
+    w.words.forEach(function(word){ steps.push({type:'word',word:word}); });
+    w.examples.forEach(function(ex){ steps.push({type:'example',ex:ex}); });
+  } else if(k==='s2'){
+    steps.push({type:'intro',title:'Cümle Kurma',body:'Türkçe cümleyi gör, <strong>Arapça kelimelere dokunarak</strong> doğru sırada kur. Bugün daha çok alıştırma var.'});
+    steps.push({type:'pattern',w:w});
+    w.builds.forEach(function(b){ steps.push({type:'build',b:b}); });
+    w.examples.slice(0,3).forEach(function(ex){ steps.push({type:'build',b:{tr:ex.tr,chips:ex.ar.split(' '),latin:ex.latin}}); });
+    w.words.slice(0,3).forEach(function(word){ steps.push({type:'rquiz',word:word,pool:w.words}); });
+  } else if(k==='s3'){
+    steps.push({type:'intro',title:'Konuşma',body:'Diyaloğu oku, iki rolü de sesli söyle. Sonra kendin cümle kur, Challenge dene ve günü özetle.'});
+    steps.push({type:'dialogue',w:w});
+    steps.push({type:'express',w:w});
+    if(prev){ prev.words.slice(0,4).forEach(function(word){ steps.push({type:'flashcard',word:word}); }); }
+    steps.push({type:'challenge',c:w.challenge});
+    steps.push({type:'ozet',w:w});
+  }
+  steps.push({type:'notebook'});
+  steps.push({type:'complete'});
+  return steps;
+}
+function renderStep(){
+  if(lessonStep>=lessonSteps.length) return;
+  const st=lessonSteps[lessonStep];
+  const body=document.getElementById('lessonBody');
+  const footer=document.getElementById('lessonFooter');
+  footer.innerHTML='<button class="btn-primary" onclick="lessonNext()">Devam →</button>';
+
+  if(st.type==='intro'){
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Başlıyoruz</div><div class="step-title">'+st.title+'</div><div class="info-card"><div class="info-rule" style="color:var(--text)">'+st.body+'</div></div><div style="text-align:center;margin-top:24px"><div class="setup-bismillah" style="font-size:26px">بِسْمِ اللّٰهِ</div></div></div>';
+  } else if(st.type==='pattern'){
+    const w=st.w;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Günün Kalıbı</div><div class="step-title">Cümle yapısı</div>'
+      +'<div class="pattern-card"><div class="pattern-chips">'+w.pattern.map(function(p){return '<span class="pchip '+p.role+'">'+p.ar+'</span>';}).join('')+'</div>'
+      +'<div class="pattern-legend"><div class="leg"><span class="leg-dot ozne"></span>Özne</div><div class="leg"><span class="leg-dot fiil"></span>Fiil / yüklem</div><div class="leg"><span class="leg-dot nesne"></span>Tümleç</div></div></div>'
+      +'<div class="info-card"><div class="info-rule">'+w.rule+'</div></div></div>';
+  } else if(st.type==='rule'){
+    const w=st.w;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Kural</div><div class="step-title">'+w.title+'</div><div class="info-card"><div class="info-rule">'+w.rule+'</div></div></div>';
+  } else if(st.type==='word'){
+    const wd=st.word;
+    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">Kelime</div>'
+      +'<div class="word-card"><div class="word-arabic">'+wd.ar+'</div><div class="word-latin">'+wd.latin+'</div><div class="word-meaning">'+wd.tr+'</div>'
+      +'<button class="speak-btn" onclick="speak(\''+wd.ar+'\')">🔊 Sesli dinle</button></div>'
+      +'<div style="font-size:13px;color:var(--text-soft);text-align:left;line-height:1.7">Okunuşunu 3 kez tekrar et: <strong style="color:var(--gold)">'+wd.latin+'</strong></div></div>';
+  } else if(st.type==='example'){
+    const ex=st.ex;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Örnek Cümle</div>'
+      +'<div class="ex-card"><div class="ex-ar">'+ex.ar+'</div><div class="ex-latin">'+ex.latin+'</div><div class="ex-tr">'+ex.tr+'</div>'
+      +'<button class="speak-btn" onclick="speak(\''+ex.ar+'\')" style="margin:12px 0 0 0">🔊 Sesli dinle</button></div></div>';
+  } else if(st.type==='build'){
+    renderBuild(st.b); return;
+  } else if(st.type==='rquiz'){
+    renderRquiz(st.word, st.pool); return;
+  } else if(st.type==='dialogue'){
+    const w=st.w;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Diyalog</div><div class="step-title">Karşılıklı konuşma</div>'
+      +w.dialogue.map(function(l){return '<div class="dia-line '+l.s+'"><div class="dia-bubble"><div class="dia-ar">'+l.ar+'</div><div class="dia-tr">'+l.tr+'</div><span class="dia-speak" onclick="speak(\''+l.ar+'\')">🔊 dinle</span></div></div>';}).join('')+'</div>';
+  } else if(st.type==='express'){
+    const w=st.w;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Kendini İfade Et</div>'
+      +'<div class="express-card"><div class="express-icon">✍️</div><div class="express-prompt">'+w.express.prompt+'</div><div class="express-hint">'+w.express.hint+'</div></div>'
+      +'<div style="font-size:13px;color:var(--text-soft);text-align:center;line-height:1.7">Cümleleri önce kafanda kur, sonra <strong style="color:var(--blue-light)">defterine yaz.</strong></div></div>';
+  } else if(st.type==='flashcard'){
+    const wd=st.word;
+    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">'+(st.warm?'Isınma — tekrar':'Tekrar (geçen hafta)')+'</div>'
+      +'<div class="flashcard" onclick="flipCard()"><div class="fc-arabic">'+wd.ar+'</div><div class="fc-hint">Anlamını düşün, sonra dokun</div>'
+      +'<div class="fc-answer" id="fcAns"><div class="fc-meaning">'+wd.tr+'</div><div class="fc-latin">'+wd.latin+'</div></div></div></div>';
+    footer.innerHTML='<button class="btn-secondary" onclick="lessonNext()">Sonraki →</button>';
+  } else if(st.type==='challenge'){
+    renderChallenge(st.c); return;
+  } else if(st.type==='ozet'){
+    const w=st.w;
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Günün Özeti</div><div class="step-title">Bugün ne öğrendin?</div>'
+      +'<div class="challenge-banner">Bu cümleleri bir kez sesli oku — günün özeti 🌙</div>'
+      +w.examples.map(function(ex){return '<div class="ozet-card"><div class="ozet-ar">'+ex.ar+'</div><div class="ozet-tr">'+ex.tr+'</div><span class="dia-speak" onclick="speak(\''+ex.ar+'\')">🔊 dinle</span></div>';}).join('')+'</div>';
+  } else if(st.type==='notebook'){
+    const photos=(state.notebookPhotos[todayKey()]||[]).filter(function(p){return p.session===curSession;});
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Son adım</div>'
+      +'<div class="nb-card"><div class="nb-icon">📓</div><div class="nb-title">Defterine yaz, fotoğrafını ekle</div>'
+      +'<div class="nb-text">Bugün öğrendiğin cümleleri defterine <strong>el yazınla</strong> yaz. Sonra fotoğrafını çekip buraya ekle — böylece ailen çalışmanı görebilir.</div>'
+      +'<button class="nb-add-btn" onclick="triggerPhoto()">📷 Defter fotoğrafı ekle</button>'
+      +'<div class="nb-preview" id="nbPreview">'+(photos.length?photos.map(function(p){return '<img src="'+p.dataUrl+'">';}).join('')+'<div class="nb-added">✓ Fotoğraf eklendi</div>':'')+'</div></div>'
+      +'<div style="font-size:12px;color:var(--text-faded);text-align:center;font-style:italic">Fotoğraf eklemek zorunlu değil ama eklersen ne kadar güzel ilerlediğin görülür 🌿</div></div>';
+    footer.innerHTML='<button class="btn-primary" onclick="lessonNext()">Bitir & Kazancı Al →</button>';
+  } else if(st.type==='complete'){
+    stopTimer(); creditSession();
+    const labels={s1:'Sabah',s2:'Öğle',s3:'Akşam'};
+    body.innerHTML='<div class="celebrate"><div class="coin-pop">🪙</div><div class="celebrate-arabic">أَحْسَنتِ</div>'
+      +'<div style="font-size:11px;color:var(--text-faded);margin-bottom:12px;font-style:italic">Ahsenti — Aferin sana</div>'
+      +'<div class="earn-badge">+'+REWARD+' ₺</div>'
+      +'<div class="celebrate-title">'+labels[curSession]+' seansı tamamlandı!</div>'
+      +'<div class="celebrate-sub">25 dakika Arapça çalıştın 🎉</div>'
+      +'<div style="margin-top:20px;background:var(--surface);border-radius:14px;padding:16px"><div style="font-size:11px;color:var(--text-faded);margin-bottom:6px">Cüzdan bakiyen</div><div style="font-size:30px;color:var(--gold-light);font-family:var(--display);font-style:italic">'+state.wallet.balance+' ₺</div></div></div>';
+    footer.innerHTML='<button class="btn-primary" onclick="closeLesson()">Harika! Kapat ✓</button>';
+  }
+}
+
+let buildState=null;
+function renderBuild(b){
+  buildState={ b:b, placed:[], bank:b.chips.map(function(c,i){return {c:c,i:i,used:false};}) };
+  for(var i=buildState.bank.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=buildState.bank[i]; buildState.bank[i]=buildState.bank[j]; buildState.bank[j]=tmp; }
+  drawBuild('');
+}
+function drawBuild(label){
+  const b=buildState.b;
+  const body=document.getElementById('lessonBody');
+  body.innerHTML='<div class="lesson-step"><div class="step-num">'+(label||'Cümle kur')+'</div>'
+    +'<div class="build-tr">'+b.tr+'</div><div class="build-instr">Doğru sırada kelimelere dokun</div>'
+    +'<div class="build-answer" id="bAns">'+buildState.placed.map(function(p,idx){return '<span class="bchip" onclick="unplace('+idx+')">'+p.c+'</span>';}).join('')+'</div>'
+    +'<div class="build-bank" id="bBank">'+buildState.bank.map(function(x,idx){return x.used?'':'<span class="bchip" onclick="place('+idx+')">'+x.c+'</span>';}).join('')+'</div>'
+    +'<div class="build-result" id="bRes"></div></div>';
+  const allUsed=buildState.bank.every(function(x){return x.used;});
+  document.getElementById('lessonFooter').innerHTML = allUsed
+    ? '<button class="btn-secondary" onclick="resetBuild()">Temizle</button><button class="btn-primary" onclick="checkBuild()">Kontrol et</button>'
+    : '<button class="btn-secondary" onclick="lessonNext()">Atla</button>';
+}
+function place(idx){ var item=buildState.bank[idx]; if(item.used) return; item.used=true; buildState.placed.push(item); drawBuild(''); }
+function unplace(idx){ var item=buildState.placed[idx]; item.used=false; buildState.placed.splice(idx,1); drawBuild(''); }
+function resetBuild(){ buildState.placed=[]; buildState.bank.forEach(function(x){x.used=false;}); drawBuild(''); }
+function checkBuild(){
+  var ans=buildState.placed.map(function(p){return p.c;}).join(' ');
+  var correct=buildState.b.chips.join(' ');
+  var ansEl=document.getElementById('bAns'); var res=document.getElementById('bRes');
+  if(ans===correct){
+    ansEl.classList.add('correct');
+    res.className='build-result show';
+    res.innerHTML='<div style="color:var(--green-light);font-weight:600;margin-bottom:4px">✓ Doğru! Aferin 🌿</div><div class="br-latin">'+buildState.b.latin+'</div>';
+    document.getElementById('lessonFooter').innerHTML='<button class="btn-primary" onclick="lessonNext()">Sonraki →</button>';
+  } else {
+    ansEl.classList.add('wrong');
+    res.className='build-result show';
+    res.innerHTML='<div style="color:#E08080;margin-bottom:6px">Sıra doğru değil, tekrar dene. İpucu: cümle <span style="direction:rtl;font-family:var(--arabic);font-size:20px">'+buildState.b.chips[0]+'</span> ile başlar.</div>';
+    setTimeout(function(){ ansEl.classList.remove('wrong'); },800);
+  }
+}
+
+let challengeState=null;
+function renderChallenge(c){
+  challengeState={ c:c, placed:[], bank:c.chips.map(function(ch,i){return {c:ch,i:i,used:false};}) };
+  for(var i=challengeState.bank.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=challengeState.bank[i]; challengeState.bank[i]=challengeState.bank[j]; challengeState.bank[j]=tmp; }
+  drawChallenge();
+}
+function drawChallenge(){
+  const c=challengeState.c;
+  const body=document.getElementById('lessonBody');
+  body.innerHTML='<div class="lesson-step"><div class="step-num">⭐ Challenge (istersen)</div>'
+    +'<div class="challenge-banner">Daha uzun bir cümle! Zorlanırsan "Atla" diyebilirsin — mecbur değilsin 🌟</div>'
+    +'<div class="build-tr">'+c.tr+'</div><div class="build-instr">Kelimeleri doğru sırada diz</div>'
+    +'<div class="build-answer" id="cAns">'+challengeState.placed.map(function(p,idx){return '<span class="bchip" onclick="cUnplace('+idx+')">'+p.c+'</span>';}).join('')+'</div>'
+    +'<div class="build-bank" id="cBank">'+challengeState.bank.map(function(x,idx){return x.used?'':'<span class="bchip" onclick="cPlace('+idx+')">'+x.c+'</span>';}).join('')+'</div>'
+    +'<div class="build-result" id="cRes"></div></div>';
+  const allUsed=challengeState.bank.every(function(x){return x.used;});
+  document.getElementById('lessonFooter').innerHTML = allUsed
+    ? '<button class="btn-secondary" onclick="cReset()">Temizle</button><button class="btn-primary" onclick="cCheck()">Kontrol et</button>'
+    : '<button class="btn-secondary" onclick="lessonNext()">Atla ⏭</button>';
+}
+function cPlace(idx){ var item=challengeState.bank[idx]; if(item.used) return; item.used=true; challengeState.placed.push(item); drawChallenge(); }
+function cUnplace(idx){ var item=challengeState.placed[idx]; item.used=false; challengeState.placed.splice(idx,1); drawChallenge(); }
+function cReset(){ challengeState.placed=[]; challengeState.bank.forEach(function(x){x.used=false;}); drawChallenge(); }
+function cCheck(){
+  var ans=challengeState.placed.map(function(p){return p.c;}).join(' ');
+  var correct=challengeState.c.chips.join(' ');
+  var ansEl=document.getElementById('cAns'); var res=document.getElementById('cRes');
+  if(ans===correct){
+    ansEl.classList.add('correct');
+    res.className='build-result show';
+    res.innerHTML='<div style="color:var(--gold-light);font-weight:700;margin-bottom:4px">⭐ Mükemmel! Challenge tamam 🎉</div><div class="br-latin">'+challengeState.c.latin+'</div>';
+    document.getElementById('lessonFooter').innerHTML='<button class="btn-primary" onclick="lessonNext()">Devam →</button>';
+  } else {
+    ansEl.classList.add('wrong');
+    res.className='build-result show';
+    res.innerHTML='<div style="color:#E08080;margin-bottom:6px">Henüz değil, tekrar dene ya da "Sonraki"ye geç.</div>';
+    document.getElementById('lessonFooter').innerHTML='<button class="btn-secondary" onclick="cReset()">Temizle</button><button class="btn-secondary" onclick="lessonNext()">Geç →</button>';
+    setTimeout(function(){ ansEl.classList.remove('wrong'); },800);
+  }
+}
+
+function renderRquiz(word, pool){
+  const body=document.getElementById('lessonBody');
+  var wrongs=pool.filter(function(x){return x.ar!==word.ar;}).slice(0,3).map(function(x){return x.tr;});
+  var opts=wrongs.concat([word.tr]);
+  for(var i=opts.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=opts[i]; opts[i]=opts[j]; opts[j]=tmp; }
+  body.innerHTML='<div class="lesson-step"><div class="step-num">Ters mini test</div>'
+    +'<div class="rquiz-q">'+word.ar+'</div><div class="rquiz-sub">"'+word.latin+'" — Türkçesi hangisi?</div>'
+    +'<div class="rquiz-opts" id="rqOpts">'+opts.map(function(o){return '<button class="rquiz-opt" onclick="rquizAnswer(this,\''+o.replace(/'/g,"\\'")+'\',\''+word.tr.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div></div>';
+  document.getElementById('lessonFooter').innerHTML='<button class="btn-secondary" onclick="lessonNext()">Atla</button>';
+}
+function rquizAnswer(btn, sel, correct){
+  var opts=document.querySelectorAll('.rquiz-opt');
+  opts.forEach(function(o){ o.onclick=null; if(o.textContent===correct) o.classList.add('correct'); });
+  if(sel!==correct) btn.classList.add('wrong');
+  setTimeout(function(){ lessonNext(); }, 1100);
+}
+
+function flipCard(){ var a=document.getElementById('fcAns'); if(a) a.classList.add('show'); }
+function lessonNext(){ lessonStep++; if(lessonStep>=lessonSteps.length){ closeLesson(); return; } renderStep(); }
+function confirmCloseLesson(){
+  var st=lessonSteps[lessonStep];
+  if(st && st.type==='complete'){ closeLesson(); return; }
+  if(confirm('Seanstan çıkmak istiyor musun? Bitirmezsen 10 ₺ kazanamazsın.')) closeLesson();
+}
+function closeLesson(){ document.getElementById('lessonModal').classList.remove('open'); stopTimer(); renderToday(); renderWallet(); renderNotebook(); updateStreak(); saveState(); }
+
+function creditSession(){
+  var t=todayKey();
+  if(!state.sessions[t]) state.sessions[t]={};
+  if(state.sessions[t][curSession]) return;
+  state.sessions[t][curSession]=true;
+  state.wallet.balance+=REWARD; state.wallet.totalEarned+=REWARD;
+  var labels={s1:'Sabah seansı',s2:'Öğle seansı',s3:'Akşam seansı'};
+  state.transactions.unshift({ date:t, type:'earn', amount:REWARD, note:labels[curSession] });
+  saveState(); updateHeader();
+}
+
+function triggerPhoto(){
+  var input=document.getElementById('photoInput');
+  input.value='';
+  input.onchange=function(){
+    var file=input.files[0]; if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var max=900; var width=img.width, height=img.height;
+        if(width>max||height>max){ var r=Math.min(max/width,max/height); width=Math.round(width*r); height=Math.round(height*r); }
+        var canvas=document.createElement('canvas'); canvas.width=width; canvas.height=height;
+        canvas.getContext('2d').drawImage(img,0,0,width,height);
+        var dataUrl=canvas.toDataURL('image/jpeg',0.6);
+        var t=todayKey();
+        if(!state.notebookPhotos[t]) state.notebookPhotos[t]=[];
+        state.notebookPhotos[t].push({ session:curSession, dataUrl:dataUrl, ts:Date.now() });
+        saveState();
+        var prev=document.getElementById('nbPreview');
+        if(prev){ var photos=state.notebookPhotos[t].filter(function(p){return p.session===curSession;}); prev.innerHTML=photos.map(function(p){return '<img src="'+p.dataUrl+'">';}).join('')+'<div class="nb-added">✓ Fotoğraf eklendi — aferin!</div>'; }
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function startTimer(){ timerSec=25*60; updateTimer(); timerInt=setInterval(function(){ timerSec--; updateTimer(); if(timerSec<=0) stopTimer(); },1000); }
+function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt=null; } }
+function updateTimer(){ var m=Math.floor(timerSec/60), s=timerSec%60; var el=document.getElementById('lessonTimer'); if(el){ el.textContent=m+':'+(s<10?'0'+s:s); el.className='lesson-timer'+(timerSec<60?' urgent':''); } }
+
+function renderWallet(){
+  var w=state.wallet;
+  var now=new Date(), m=now.getMonth(), y=now.getFullYear();
+  var month=0; state.transactions.forEach(function(tx){ if(tx.type==='earn'){ var d=new Date(tx.date); if(d.getMonth()===m&&d.getFullYear()===y) month+=tx.amount; } });
+  var goal=state.savingsGoal; var gp=goal.target>0?Math.min(w.savings/goal.target*100,100):0;
+  document.getElementById('walletContent').innerHTML=
+    '<div class="wallet-hero"><div class="wallet-label">Harcanabilir bakiye</div><div class="wallet-balance">'+w.balance+' <span>₺</span></div>'
+    +'<div class="wallet-sub"><div><div class="wallet-sub-num">'+month+' ₺</div><div class="wallet-sub-lbl">Bu ay</div></div><div><div class="wallet-sub-num">'+w.totalEarned+' ₺</div><div class="wallet-sub-lbl">Toplam kazanç</div></div></div></div>'
+    +'<div class="savings-card"><div class="savings-head"><div class="savings-title">🏺 Kumbaram (Birikim)</div><div class="savings-amount">'+w.savings+' ₺</div></div>'
+    +'<div class="savings-goal-name">Hedef: '+goal.name+'</div>'
+    +'<div class="savings-bar"><div class="savings-fill" style="width:'+gp+'%"></div></div>'
+    +'<div class="savings-goal-info">'+w.savings+' ₺ / '+goal.target+' ₺ — %'+Math.round(gp)+'</div>'
+    +'<div class="savings-actions"><button class="save-btn" onclick="toSavings(10)">+10 ₺ biriktir</button><button class="save-btn" onclick="toSavings(30)">+30 ₺ biriktir</button><button class="save-btn" onclick="toSavingsAll()">Hepsini biriktir</button></div>'
+    +'<button class="goal-edit" onclick="editGoal()">✎ Hedefi değiştir</button></div>';
+  renderTx();
+}
+function renderTx(){
+  var el=document.getElementById('txList');
+  if(!state.transactions.length){ el.innerHTML='<div class="empty-note">Henüz hareket yok.<br>Bir seans tamamla, 10 ₺ kazan!</div>'; return; }
+  el.innerHTML=state.transactions.slice(0,40).map(function(tx){
+    var d=new Date(tx.date).toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
+    if(tx.type==='earn') return '<div class="tx-item"><div><div class="tx-note">✅ '+tx.note+'</div><div class="tx-date">'+d+'</div></div><div class="tx-amt earn">+'+tx.amount+' ₺</div></div>';
+    return '<div class="tx-item"><div><div class="tx-note">🏺 Kumbaraya aktarıldı</div><div class="tx-date">'+d+'</div></div><div class="tx-amt save">−'+tx.amount+' ₺</div></div>';
+  }).join('');
+}
+function toSavings(amt){
+  if(state.wallet.balance<amt){ alert('Bakiyen yetersiz.'); return; }
+  state.wallet.balance-=amt; state.wallet.savings+=amt;
+  state.transactions.unshift({ date:todayKey(), type:'save', amount:amt, note:'Kumbara' });
+  saveState(); renderWallet(); updateHeader();
+}
+function toSavingsAll(){ if(state.wallet.balance<=0){ alert('Bakiye yok.'); return; } toSavings(state.wallet.balance); }
+function editGoal(){
+  var name=prompt('Birikim hedefin ne? (ne için para biriktiriyorsun)', state.savingsGoal.name);
+  if(name===null) return;
+  var target=prompt('Hedef tutar (₺):', state.savingsGoal.target);
+  if(target===null) return;
+  state.savingsGoal={ name:name.trim()||state.savingsGoal.name, target:parseInt(target)||state.savingsGoal.target };
+  saveState(); renderWallet();
+}
+
+function renderNotebook(){
+  var el=document.getElementById('nbGallery');
+  var dates=Object.keys(state.notebookPhotos).filter(function(d){return state.notebookPhotos[d].length;}).sort().reverse();
+  if(!dates.length){ el.innerHTML='<div class="empty-note">Henüz defter fotoğrafı yok.<br>Bir seansın sonunda çalışmanın fotoğrafını ekle 📓</div>'; return; }
+  var labels={s1:'Sabah',s2:'Öğle',s3:'Akşam'};
+  el.innerHTML=dates.map(function(d){
+    var ds=new Date(d).toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
+    var photos=state.notebookPhotos[d];
+    return '<div class="nb-day"><div class="nb-day-date">'+ds+' — '+photos.length+' fotoğraf</div><div class="nb-day-photos">'+photos.map(function(p){return '<div class="nb-photo"><img src="'+p.dataUrl+'"><div class="nb-photo-label">'+(labels[p.session]||'')+'</div></div>';}).join('')+'</div></div>';
+  }).join('');
+}
+
+function renderReport(){
+  var t=todayKey(), ts=state.sessions[t]||{}, w=getWeek(), wn=getWeekNum();
+  var done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
+  var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
+  var photosToday=(state.notebookPhotos[t]||[]).length;
+  document.getElementById('reportContent').innerHTML=
+    '<div class="report-card"><div class="report-title">Bugün</div>'
+    +'<div class="report-stat"><span>🌅 Seans 1 — Yapı</span><span class="report-val">'+(ts.s1?'✓ Tamam':'✗ Bekliyor')+'</span></div>'
+    +'<div class="report-stat"><span>☀️ Seans 2 — Kurma</span><span class="report-val">'+(ts.s2?'✓ Tamam':'✗ Bekliyor')+'</span></div>'
+    +'<div class="report-stat"><span>🌙 Seans 3 — Konuşma</span><span class="report-val">'+(ts.s3?'✓ Tamam':'✗ Bekliyor')+'</span></div>'
+    +'<div class="report-stat"><span>Çalışma süresi</span><span class="report-val">'+(done*25)+' / 75 dk</span></div>'
+    +'<div class="report-stat"><span>Defter fotoğrafı</span><span class="report-val">'+photosToday+' adet</span></div>'
+    +'<div class="report-stat"><span>Bugün kazanılan</span><span class="report-val">+'+(done*REWARD)+' ₺</span></div></div>'
+    +'<div class="report-card"><div class="report-title">Cüzdan</div>'
+    +'<div class="report-stat"><span>Harcanabilir bakiye</span><span class="report-val">'+state.wallet.balance+' ₺</span></div>'
+    +'<div class="report-stat"><span>Kumbara (birikim)</span><span class="report-val">'+state.wallet.savings+' ₺</span></div>'
+    +'<div class="report-stat"><span>Toplam kazanç</span><span class="report-val">'+state.wallet.totalEarned+' ₺</span></div></div>'
+    +'<div class="report-card"><div class="report-title">İlerleme</div>'
+    +'<div class="report-stat"><span>Hafta</span><span class="report-val">Hafta '+wn+' / 12</span></div>'
+    +'<div class="report-stat"><span>Konu</span><span class="report-val">'+w.title+'</span></div>'
+    +'<div class="report-stat"><span>Zincir</span><span class="report-val">🔥 '+state.streak.current+' gün</span></div>'
+    +'<div class="report-stat"><span>Toplam seans</span><span class="report-val">'+totalSessions+'</span></div>'
+    +'<div class="report-stat"><span>Toplam süre</span><span class="report-val">~'+(totalSessions*25)+' dk</span></div></div>';
+}
+
+function sendReport(){
+  var t=todayKey(), ts=state.sessions[t]||{}, w=getWeek(), wn=getWeekNum();
+  var done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
+  var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
+  var photosToday=(state.notebookPhotos[t]||[]).length;
+  var dateStr=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var body='Selâmün aleyküm anne baba,\n\n'+state.name+'\'ın Arapça raporu — '+dateStr+'\n\n'
+    +'─────────────────────────────────\n📅 BUGÜNÜN SEANSLARI (3 × 25 dk)\n'
+    +'Seans 1 — Yapı: '+(ts.s1?'✓ Tamamlandı':'✗ Yapılmadı')+'\n'
+    +'Seans 2 — Kurma: '+(ts.s2?'✓ Tamamlandı':'✗ Yapılmadı')+'\n'
+    +'Seans 3 — Konuşma + Defter: '+(ts.s3?'✓ Tamamlandı':'✗ Yapılmadı')+'\n'
+    +'Çalışma süresi: '+(done*25)+' / 75 dakika\n'
+    +'Defter fotoğrafı eklendi: '+photosToday+' adet\n'
+    +'Bugün kazandığı: +'+(done*REWARD)+' ₺\n\n'
+    +'─────────────────────────────────\n💰 CÜZDAN\n'
+    +'Harcanabilir bakiye: '+state.wallet.balance+' ₺\n'
+    +'Kumbara (birikim): '+state.wallet.savings+' ₺\n'
+    +'Toplam kazanç: '+state.wallet.totalEarned+' ₺\n'
+    +'Birikim hedefi: '+state.savingsGoal.name+' ('+state.savingsGoal.target+' ₺)\n\n'
+    +'─────────────────────────────────\n📈 GENEL İLERLEME\n'
+    +'Güncel hafta: Hafta '+wn+' / 12\n'
+    +'Bu haftanın konusu: '+w.title+' — '+w.topic+'\n'
+    +'Çalışma zinciri: 🔥 '+state.streak.current+' gün\n'
+    +'Toplam tamamlanan seans: '+totalSessions+'\n'
+    +'Toplam çalışma süresi: ~'+(totalSessions*25)+' dakika\n\n'
+    +'Not: Bugünkü defter fotoğrafları bu mesaja eklenmiştir.\n\nSevgiler,\n'+state.name;
+
+  var photos=(state.notebookPhotos[t]||[]);
+  var files=photos.map(function(p,i){ return dataURLtoFile(p.dataUrl, state.name+'_defter_'+t+'_'+(i+1)+'.jpg'); });
+
+  if(files.length && navigator.canShare && navigator.canShare({files:files})){
+    navigator.share({ title:state.name+' Arapça Raporu — '+dateStr, text:body, files:files })
+      .catch(function(e){ if(e&&e.name!=='AbortError') fallbackSend(body,dateStr,photos); });
+    return;
+  }
+  if(navigator.share){
+    navigator.share({ title:state.name+' Arapça Raporu — '+dateStr, text:body })
+      .catch(function(e){ if(e&&e.name!=='AbortError') fallbackSend(body,dateStr,photos); });
+    return;
+  }
+  fallbackSend(body,dateStr,photos);
+}
+function fallbackSend(body,dateStr,photos){
+  if(typeof emailjs!=='undefined'){
+    emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{ to_email:'oaydemir@worldcentralkitchen.org', to_email2:'amazonturkusa@gmail.com', subject:state.name+' Arapça Raporu — '+dateStr, message:body, from_name:state.name }).then(function(){}).catch(function(){});
+  }
+  if(photos && photos.length){ downloadPhotos(photos); }
+  var subject=encodeURIComponent(state.name+' Arapça Raporu — '+dateStr);
+  window.location.href='mailto:oaydemir@worldcentralkitchen.org,amazonturkusa@gmail.com?subject='+subject+'&body='+encodeURIComponent(body);
+}
+function dataURLtoFile(dataurl, filename){
+  var arr=dataurl.split(','); var mime=(arr[0].match(/:(.*?);/)||[])[1]||'image/jpeg';
+  var bstr=atob(arr[1]); var n=bstr.length; var u8=new Uint8Array(n);
+  while(n--) u8[n]=bstr.charCodeAt(n);
+  return new File([u8], filename, {type:mime});
+}
+function downloadPhotos(photos){
+  photos.forEach(function(p,i){ var a=document.createElement('a'); a.href=p.dataUrl; a.download=state.name+'_defter_'+(i+1)+'.jpg'; document.body.appendChild(a); a.click(); document.body.removeChild(a); });
+}
+
+function speak(text){ if(!window.speechSynthesis) return; var u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=0.7; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+
+loadState();
+if(state.setupDone){ document.getElementById('setup').style.display='none'; initApp(); }
+</script>
+</body>
+</html>
