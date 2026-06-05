@@ -230,15 +230,15 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
   <div class="setup-bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيمِ</div>
   <div class="setup-sub">Rahman ve Rahim olan Allah'ın adıyla</div>
   <div class="setup-title">Arapça Konuşma<br>Yolculuğun</div>
-  <div class="setup-desc">Kelime ezberi değil — cümle kurma.<br>Günde 3 × 25 dakika, sıkı program.</div>
+  <div class="setup-desc">Kelime ezberi değil — cümle kurma.<br>Her gün yeni konu + bol tekrar.</div>
   <input class="setup-input" id="setupName" type="text" placeholder="Adın nedir?" maxlength="20">
   <button class="setup-btn" onclick="startApp()">Bismillah, Başla →</button>
   <div class="setup-features">
-    <div class="setup-feature"><span>🌅</span><span><strong>Seans 1 — Yapı:</strong> Isınma + kalıp + kelimeler</span></div>
-    <div class="setup-feature"><span>☀️</span><span><strong>Seans 2 — Kurma:</strong> Cümle kur + ters mini test</span></div>
-    <div class="setup-feature"><span>🌙</span><span><strong>Seans 3 — Konuşma:</strong> Diyalog + Challenge + Günün Özeti</span></div>
+    <div class="setup-feature"><span>🌅</span><span><strong>Seans 1 — Yapı:</strong> Kısa tekrar + günün yeni konusu</span></div>
+    <div class="setup-feature"><span>☀️</span><span><strong>Seans 2 — Kurma:</strong> Cümle kur + eski derslerden tekrar</span></div>
+    <div class="setup-feature"><span>🌙</span><span><strong>Seans 3 — Konuşma:</strong> Konuş + pekiştir + günün özeti</span></div>
+    <div class="setup-feature"><span>🔁</span><span>Her ders <strong>tekrar tekrar</strong> geri gelir — kalıcı öğrenme</span></div>
     <div class="setup-feature"><span>💰</span><span>Her seans <strong>10 ₺</strong> — cüzdanına eklenir</span></div>
-    <div class="setup-feature"><span>📓</span><span>Çalışmanı deftere yaz, fotoğrafını ekle</span></div>
   </div>
 </div>
 
@@ -384,7 +384,7 @@ const CURRICULUM = [
       {ar:'بَيتُكِ',latin:'beytuki',tr:'Evin (kız)'},
     ],
     examples:[
-      {ar:'اِسمي هاتِجة',latin:'İsmî Hâtice',tr:'Adım Hatice.'},
+      {ar:'اِسmi هاتِجة',latin:'İsmî Hâtice',tr:'Adım Hatice.'},
       {ar:'هذا كِتابي',latin:'Hâzâ kitâbî',tr:'Bu benim kitabım.'},
       {ar:'هذه أُمّي',latin:'Hâzihî ummî',tr:'Bu benim annem.'},
       {ar:'أينَ بَيتُكِ؟',latin:'Eyne beytuki?',tr:'Evin nerede?'},
@@ -583,7 +583,7 @@ const CURRICULUM = [
     ],
     builds:[
       {tr:'Uyanırım sonra namaz kılarım.', chips:['أستَيقِظُ','ثُمَّ','أُصَلّي'], latin:'Esteykızu summe usallî'},
-      {tr:'Her gün Arapça öğrenirim.', chips:['كُلَّ يَوم','أتَعَلَّمُ','العَرَبية'], latin:'Kulle yevm eteallemu-l-arabiyye'},
+      {tr:'Her gün Arapça öğrenirim.', chips:['كُلَّ يَوm','أتَعَلَّمُ','العَرَبية'], latin:'Kulle yevm eteallemu-l-arabiyye'},
       {tr:'Namazdan sonra Kuran okurum.', chips:['أقرأُ','القُرآن','بَعدَ','الصَّلاة'], latin:"Akrau-l-Kur'ân ba'de-s-salâh"},
     ],
     dialogue:[
@@ -706,8 +706,18 @@ function todayKey(){ return new Date().toISOString().split('T')[0]; }
 function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ alert('Hafıza dolu olabilir — eski defter fotoğraflarını silmen gerekebilir.'); } }
 
-function getWeekNum(){ if(!state.startDate) return 1; const d=Math.floor((new Date()-new Date(state.startDate))/(1000*60*60*24*7)); return Math.min(d+1,12); }
-function getWeek(){ return CURRICULUM[Math.min(getWeekNum()-1,11)]; }
+// === Hatice'ye özel öğrenme motoru: her gün yeni ders + aralıklı/birikimli tekrar ===
+function getDayNum(){ if(!state.startDate) return 0; var ms=new Date()-new Date(state.startDate); return Math.max(0,Math.floor(ms/(1000*60*60*24))); }
+function getWeekNum(){ return (getDayNum() % CURRICULUM.length) + 1; }
+function getWeek(){ return CURRICULUM[getWeekNum()-1]; }
+// Aralıklı tekrar (spaced repetition): geçmiş dersleri 1, 3, 7, 14 gün öncesinden geri getirir
+function getReviewLessons(){
+  var day=getDayNum(); var cur=getWeekNum()-1; var offsets=[1,3,7,14]; var picked=[];
+  offsets.forEach(function(off){ if(day-off>=0){ var idx=(day-off)%CURRICULUM.length; if(idx!==cur && picked.indexOf(idx)===-1) picked.push(idx); } });
+  return picked.map(function(i){ return CURRICULUM[i]; });
+}
+// Tekrar derslerinden kelime topla
+function reviewWordList(review,n){ var out=[]; for(var i=0;i<review.length && out.length<n;i++){ if(review[i].words[0]) out.push(review[i].words[0]); if(out.length<n && review[i].words[1]) out.push(review[i].words[1]); } return out.slice(0,n); }
 
 function startApp(){
   const n=document.getElementById('setupName').value.trim();
@@ -758,9 +768,9 @@ function renderToday(){
   const pct=Math.round(done/3*100);
   document.getElementById('progressSection').innerHTML='<div class="progress-header"><div class="progress-label">Bugün tamamlandı</div><div class="progress-val">'+done+'/3 seans • '+(done*25)+' dk • +'+(done*REWARD)+' ₺</div></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div>';
   const S=[
-    {k:'s1',icon:'🌅',label:'Sabah',time:'Seans 1',desc:'Isınma + günün kalıbı + kelimeler',cls:'s1',ttl:'Yapı'},
-    {k:'s2',icon:'☀️',label:'Öğle',time:'Seans 2',desc:'Cümle kurma + ters mini test',cls:'s2',ttl:'Kurma'},
-    {k:'s3',icon:'🌙',label:'Akşam',time:'Seans 3',desc:'Diyalog + Challenge + Günün Özeti + Defter',cls:'s3',ttl:'Konuşma'},
+    {k:'s1',icon:'🌅',label:'Sabah',time:'Seans 1',desc:'Kısa tekrar + günün yeni konusu',cls:'s1',ttl:'Yapı'},
+    {k:'s2',icon:'☀️',label:'Öğle',time:'Seans 2',desc:'Cümle kur + eski derslerden tekrar',cls:'s2',ttl:'Kurma'},
+    {k:'s3',icon:'🌙',label:'Akşam',time:'Seans 3',desc:'Konuş + pekiştir + günün özeti',cls:'s3',ttl:'Konuşma'},
   ];
   document.getElementById('sessionsGrid').innerHTML=S.map(function(s){
     return '<div class="session-card '+s.cls+' '+(ts[s.k]?'done':'')+'" onclick="'+(ts[s.k]?'':"openLesson('"+s.k+"')")+'">'
@@ -782,26 +792,27 @@ function openLesson(k){
   startTimer(); renderStep();
 }
 function buildSteps(k,w){
-  const steps=[]; const wn=getWeekNum();
-  const prev = wn>1 ? CURRICULUM[wn-2] : null;
+  const steps=[];
+  const review=getReviewLessons();
   if(k==='s1'){
-    steps.push({type:'intro',title:w.title,body:'Önce kısa bir ısınma, sonra günün kalıbı. Her kelimeyi <strong>sesli</strong> tekrar et.'});
-    if(prev){ prev.words.slice(0,2).forEach(function(word){ steps.push({type:'flashcard',word:word,warm:true}); }); }
+    steps.push({type:'intro',title:w.title,body:'Önce kısa tekrar (eski derslerden), sonra günün yeni konusu. Acele yok — her kelimeyi <strong>sesli</strong> söyle.'});
+    reviewWordList(review,2).forEach(function(word){ steps.push({type:'flashcard',word:word,warm:true}); });
     steps.push({type:'pattern',w:w});
     steps.push({type:'rule',w:w});
     w.words.forEach(function(word){ steps.push({type:'word',word:word}); });
     w.examples.forEach(function(ex){ steps.push({type:'example',ex:ex}); });
   } else if(k==='s2'){
-    steps.push({type:'intro',title:'Cümle Kurma',body:'Türkçe cümleyi gör, <strong>Arapça kelimelere dokunarak</strong> doğru sırada kur. Bugün daha çok alıştırma var.'});
+    steps.push({type:'intro',title:'Cümle Kurma + Tekrar',body:'Önce bugünün cümleleri, sonra <strong>önceki günlerden</strong> tekrar. Tekrar etmek kalıcı öğrenmenin sırrıdır.'});
     steps.push({type:'pattern',w:w});
     w.builds.forEach(function(b){ steps.push({type:'build',b:b}); });
-    w.examples.slice(0,3).forEach(function(ex){ steps.push({type:'build',b:{tr:ex.tr,chips:ex.ar.split(' '),latin:ex.latin}}); });
-    w.words.slice(0,3).forEach(function(word){ steps.push({type:'rquiz',word:word,pool:w.words}); });
+    review.slice(0,2).forEach(function(rl){ if(rl.builds && rl.builds[0]) steps.push({type:'build',b:rl.builds[0]}); });
+    w.words.slice(0,2).forEach(function(word){ steps.push({type:'rquiz',word:word,pool:w.words}); });
+    if(review[0] && review[0].words[0]){ steps.push({type:'rquiz',word:review[0].words[0],pool:review[0].words}); }
   } else if(k==='s3'){
-    steps.push({type:'intro',title:'Konuşma',body:'Diyaloğu oku, iki rolü de sesli söyle. Sonra kendin cümle kur, Challenge dene ve günü özetle.'});
+    steps.push({type:'intro',title:'Konuşma + Pekiştirme',body:'Önce bugünün konuşması, sonra <strong>eski derslerden hatırlama</strong>. Günü özetleyerek bitir.'});
     steps.push({type:'dialogue',w:w});
     steps.push({type:'express',w:w});
-    if(prev){ prev.words.slice(0,4).forEach(function(word){ steps.push({type:'flashcard',word:word}); }); }
+    reviewWordList(review,4).forEach(function(word){ steps.push({type:'flashcard',word:word}); });
     steps.push({type:'challenge',c:w.challenge});
     steps.push({type:'ozet',w:w});
   }
@@ -853,9 +864,10 @@ function renderStep(){
       +'<div style="font-size:13px;color:var(--text-soft);text-align:center;line-height:1.7">Cümleleri önce kafanda kur, sonra <strong style="color:var(--blue-light)">defterine yaz.</strong></div></div>';
   } else if(st.type==='flashcard'){
     const wd=st.word;
-    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">'+(st.warm?'Isınma — tekrar':'Tekrar (geçen hafta)')+'</div>'
+    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">'+(st.warm?'Isınma — tekrar':'Tekrar — eski ders')+'</div>'
       +'<div class="flashcard" onclick="flipCard()"><div class="fc-arabic">'+wd.ar+'</div><div class="fc-hint">Anlamını düşün, sonra dokun</div>'
-      +'<div class="fc-answer" id="fcAns"><div class="fc-meaning">'+wd.tr+'</div><div class="fc-latin">'+wd.latin+'</div></div></div></div>';
+      +'<div class="fc-answer" id="fcAns"><div class="fc-meaning">'+wd.tr+'</div><div class="fc-latin">'+wd.latin+'</div></div></div>'
+      +'<button class="speak-btn" onclick="speak(\''+wd.ar+'\')" style="margin:0 auto">🔊 Sesli dinle</button></div>';
     footer.innerHTML='<button class="btn-secondary" onclick="lessonNext()">Sonraki →</button>';
   } else if(st.type==='challenge'){
     renderChallenge(st.c); return;
@@ -1106,7 +1118,7 @@ function renderReport(){
     +'<div class="report-stat"><span>Kumbara (birikim)</span><span class="report-val">'+state.wallet.savings+' ₺</span></div>'
     +'<div class="report-stat"><span>Toplam kazanç</span><span class="report-val">'+state.wallet.totalEarned+' ₺</span></div></div>'
     +'<div class="report-card"><div class="report-title">İlerleme</div>'
-    +'<div class="report-stat"><span>Hafta</span><span class="report-val">Hafta '+wn+' / 12</span></div>'
+    +'<div class="report-stat"><span>Bugünkü ders</span><span class="report-val">Ders '+wn+' / 12</span></div>'
     +'<div class="report-stat"><span>Konu</span><span class="report-val">'+w.title+'</span></div>'
     +'<div class="report-stat"><span>Zincir</span><span class="report-val">🔥 '+state.streak.current+' gün</span></div>'
     +'<div class="report-stat"><span>Toplam seans</span><span class="report-val">'+totalSessions+'</span></div>'
@@ -1133,8 +1145,8 @@ function sendReport(){
     +'Toplam kazanç: '+state.wallet.totalEarned+' ₺\n'
     +'Birikim hedefi: '+state.savingsGoal.name+' ('+state.savingsGoal.target+' ₺)\n\n'
     +'─────────────────────────────────\n📈 GENEL İLERLEME\n'
-    +'Güncel hafta: Hafta '+wn+' / 12\n'
-    +'Bu haftanın konusu: '+w.title+' — '+w.topic+'\n'
+    +'Bugünkü ders: Ders '+wn+' / 12\n'
+    +'Konu: '+w.title+' — '+w.topic+'\n'
     +'Çalışma zinciri: 🔥 '+state.streak.current+' gün\n'
     +'Toplam tamamlanan seans: '+totalSessions+'\n'
     +'Toplam çalışma süresi: ~'+(totalSessions*25)+' dakika\n\n'
@@ -1173,7 +1185,37 @@ function downloadPhotos(photos){
   photos.forEach(function(p,i){ var a=document.createElement('a'); a.href=p.dataUrl; a.download=state.name+'_defter_'+(i+1)+'.jpg'; document.body.appendChild(a); a.click(); document.body.removeChild(a); });
 }
 
-function speak(text){ if(!window.speechSynthesis) return; var u=new SpeechSynthesisUtterance(text); u.lang='ar-SA'; u.rate=0.7; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+// === SES (Samsung/Android uyumlu, sağlam sürüm) ===
+var arabicVoice=null, voicesReady=false, ttsWarned=false;
+function loadVoices(){
+  if(!window.speechSynthesis) return;
+  var voices=speechSynthesis.getVoices();
+  if(voices && voices.length){
+    voicesReady=true;
+    arabicVoice = voices.find(function(v){ return v.lang && v.lang.toLowerCase()==='ar-sa'; })
+               || voices.find(function(v){ return v.lang && v.lang.toLowerCase().indexOf('ar')===0; })
+               || null;
+  }
+}
+if(window.speechSynthesis){
+  loadVoices();
+  try{ speechSynthesis.onvoiceschanged=loadVoices; }catch(e){}
+}
+function speak(text){
+  if(!window.speechSynthesis){ alert('Bu tarayıcı sesli okumayı desteklemiyor. Chrome ile açmayı dene.'); return; }
+  if(!voicesReady) loadVoices();
+  try{ speechSynthesis.cancel(); }catch(e){}
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='ar-SA';
+  u.rate=0.6;
+  if(arabicVoice) u.voice=arabicVoice;
+  if(!arabicVoice && !ttsWarned){
+    ttsWarned=true;
+    alert('Telefonda Arapça ses paketi yüklü değil gibi görünüyor.\n\nSesi açmak için:\nAyarlar → Genel yönetim → Metin okuma (TTS) → motor (Google) → Dil yükle → Arapça\'yı indir.\n\nSonra uygulamayı yenile. (Ses gelene kadar yazılı okuyabilirsin.)');
+  }
+  // Android/iOS uyumu: cancel sonrası kısa gecikmeyle başlat
+  setTimeout(function(){ try{ speechSynthesis.speak(u); }catch(e){} }, 80);
+}
 
 loadState();
 if(state.setupDone){ document.getElementById('setup').style.display='none'; initApp(); }
