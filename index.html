@@ -172,7 +172,7 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
 .express-icon{ font-size:36px; margin-bottom:10px; }
 .express-prompt{ font-size:17px; color:var(--text); font-weight:500; margin-bottom:10px; line-height:1.5; }
 .express-hint{ font-size:12px; color:var(--text-soft); font-style:italic; line-height:1.6; background:var(--surface); border-radius:10px; padding:10px 14px; }
-.flashcard{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px 20px; text-align:center; margin-bottom:16px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; }
+.flashcard{ background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:32px 20px; text-align:center; margin-bottom:16px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .fc-arabic{ font-family:var(--arabic); font-size:50px; color:var(--gold-light); direction:rtl; line-height:1.4; }
 .fc-hint{ font-size:11px; color:var(--text-faded); margin-top:14px; font-style:italic; }
 .fc-answer{ display:none; }
@@ -249,6 +249,7 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
     <div class="setup-feature"><span>🌅</span><span><strong>Seans 1 — Yapı:</strong> Kısa tekrar + günün yeni konusu</span></div>
     <div class="setup-feature"><span>☀️</span><span><strong>Seans 2 — Kurma:</strong> Cümle kur + eski derslerden tekrar</span></div>
     <div class="setup-feature"><span>🌙</span><span><strong>Seans 3 — Konuşma:</strong> Konuş + pekiştir + günün özeti</span></div>
+    <div class="setup-feature"><span>🧠</span><span><strong>Hatırlama sistemi:</strong> Bilemediğin kelime ertesi gün tekrar gelir</span></div>
     <div class="setup-feature"><span>🏆</span><span><strong>Hafta &amp; Ay Sınavı:</strong> Öğrendiklerini göster, bonus kazan</span></div>
     <div class="setup-feature"><span>💰</span><span>Her seans <strong>10 ₺</strong> — cüzdanına eklenir</span></div>
   </div>
@@ -530,7 +531,7 @@ const CURRICULUM = [
       {ar:'لِماذا',latin:'limâzâ',tr:'Neden'},
     ],
     examples:[
-      {ar:'ما اسمُكِ؟',latin:'Me-smuki?',tr:'Adın ne?'},
+      {ar:'ما اسmuكِ؟',latin:'Me-smuki?',tr:'Adın ne?'},
       {ar:'أينَ تَذهَبينَ؟',latin:'Eyne tezhebîne?',tr:'Nereye gidiyorsun?'},
       {ar:'كيفَ حالُكِ؟',latin:'Keyfe hâluki?',tr:'Nasılsın?'},
       {ar:'مَن هذا؟',latin:'Men hâzâ?',tr:'Bu kim?'},
@@ -720,9 +721,10 @@ let state = {
   savingsGoal:{ name:'Yeni bir kitap', target:300 },
   notebookPhotos:{},
   exams:{},
+  struggled:{},
 };
 function todayKey(){ return new Date().toISOString().split('T')[0]; }
-function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; if(!state.exams) state.exams={}; }catch(e){} }
+function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; if(!state.exams) state.exams={}; if(!state.struggled) state.struggled={}; }catch(e){} }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ alert('Hafıza dolu olabilir — eski defter fotoğraflarını silmen gerekebilir.'); } }
 
 // === Hatice'ye özel öğrenme motoru: her gün yeni ders + aralıklı/birikimli tekrar ===
@@ -737,6 +739,11 @@ function getReviewLessons(){
 }
 // Tekrar derslerinden kelime topla
 function reviewWordList(review,n){ var out=[]; for(var i=0;i<review.length && out.length<n;i++){ if(review[i].words[0]) out.push(review[i].words[0]); if(out.length<n && review[i].words[1]) out.push(review[i].words[1]); } return out.slice(0,n); }
+
+// === Zorlanılan kelimeler (kopyalamayı kır: bilemediğini ertesi gün geri getir) ===
+function addStruggled(w){ if(!w||!w.ar) return; state.struggled[w.ar]={ar:w.ar,latin:w.latin,tr:w.tr,since:getDayNum()}; saveState(); }
+function removeStruggled(ar){ if(state.struggled[ar]){ delete state.struggled[ar]; saveState(); } }
+function struggledWordList(n){ var arr=Object.keys(state.struggled).map(function(k){return state.struggled[k];}); for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr.slice(0,n); }
 
 // === SINAV SİSTEMİ (Hollanda modeli: hafta + aylık birikimli) ===
 // Belirli gün aralığındaki derslerin kelimelerini toplar (idx dahil, döngüsel)
@@ -868,24 +875,30 @@ function buildSteps(k,w){
   const steps=[];
   const review=getReviewLessons();
   if(k==='s1'){
-    steps.push({type:'intro',title:w.title,body:'Önce kısa tekrar (eski derslerden), sonra günün yeni konusu. Acele yok — her kelimeyi <strong>sesli</strong> söyle.'});
-    reviewWordList(review,2).forEach(function(word){ steps.push({type:'flashcard',word:word,warm:true}); });
+    steps.push({type:'intro',title:w.title,body:'Önce kısa hatırlama (eski/zorlandığın kelimeler), sonra günün yeni konusu. Acele yok — her kelimeyi <strong>sesli</strong> söyle.'});
+    var warm=struggledWordList(2);
+    var need=2-warm.length;
+    if(need>0){ reviewWordList(review,need).forEach(function(word){ warm.push(word); }); }
+    warm.forEach(function(word){ steps.push({type:'flashcard',word:word,warm:true}); });
     steps.push({type:'pattern',w:w});
     steps.push({type:'rule',w:w});
     w.words.forEach(function(word){ steps.push({type:'word',word:word}); });
     w.examples.forEach(function(ex){ steps.push({type:'example',ex:ex}); });
   } else if(k==='s2'){
-    steps.push({type:'intro',title:'Cümle Kurma + Tekrar',body:'Önce bugünün cümleleri, sonra <strong>önceki günlerden</strong> tekrar. Tekrar etmek kalıcı öğrenmenin sırrıdır.'});
+    steps.push({type:'intro',title:'Cümle Kurma + Tekrar',body:'Önce bugünün cümleleri, sonra <strong>önceki günlerden</strong> tekrar. Dikkat: kelime havuzunda tuzaklar var — doğru olanları seç!'});
     steps.push({type:'pattern',w:w});
-    w.builds.forEach(function(b){ steps.push({type:'build',b:b}); });
-    review.slice(0,2).forEach(function(rl){ if(rl.builds && rl.builds[0]) steps.push({type:'build',b:rl.builds[0]}); });
+    w.builds.forEach(function(b){ steps.push({type:'build',b:b,pool:w.words}); });
+    review.slice(0,2).forEach(function(rl){ if(rl.builds && rl.builds[0]) steps.push({type:'build',b:rl.builds[0],pool:rl.words}); });
     w.words.slice(0,2).forEach(function(word){ steps.push({type:'rquiz',word:word,pool:w.words}); });
     if(review[0] && review[0].words[0]){ steps.push({type:'rquiz',word:review[0].words[0],pool:review[0].words}); }
   } else if(k==='s3'){
     steps.push({type:'intro',title:'Konuşma + Pekiştirme',body:'Önce bugünün konuşması, sonra <strong>eski derslerden hatırlama</strong>. Günü özetleyerek bitir.'});
     steps.push({type:'dialogue',w:w});
     steps.push({type:'express',w:w});
-    reviewWordList(review,4).forEach(function(word){ steps.push({type:'flashcard',word:word}); });
+    var rev=struggledWordList(2);
+    var need3=4-rev.length;
+    if(need3>0){ reviewWordList(review,need3).forEach(function(word){ rev.push(word); }); }
+    rev.forEach(function(word){ steps.push({type:'flashcard',word:word}); });
     steps.push({type:'challenge',c:w.challenge});
     steps.push({type:'ozet',w:w});
   }
@@ -923,7 +936,7 @@ function renderStep(){
       +'<div class="ex-card"><div class="ex-ar">'+ex.ar+'</div><div class="ex-latin">'+ex.latin+'</div><div class="ex-tr">'+ex.tr+'</div>'
       +'<button class="speak-btn" onclick="speak(\''+ex.ar+'\')" style="margin:12px 0 0 0">🔊 Sesli dinle</button></div></div>';
   } else if(st.type==='build'){
-    renderBuild(st.b); return;
+    renderBuild(st.b, st.pool); return;
   } else if(st.type==='rquiz'){
     renderRquiz(st.word, st.pool); return;
   } else if(st.type==='dialogue'){
@@ -937,11 +950,11 @@ function renderStep(){
       +'<div style="font-size:13px;color:var(--text-soft);text-align:center;line-height:1.7">Cümleleri önce kafanda kur, sonra <strong style="color:var(--blue-light)">defterine yaz.</strong></div></div>';
   } else if(st.type==='flashcard'){
     const wd=st.word;
-    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">'+(st.warm?'Isınma — tekrar':'Tekrar — eski ders')+'</div>'
-      +'<div class="flashcard" onclick="flipCard()"><div class="fc-arabic">'+wd.ar+'</div><div class="fc-hint">Anlamını düşün, sonra dokun</div>'
+    body.innerHTML='<div class="lesson-step" style="text-align:center"><div class="step-num">'+(st.warm?'Hatırla — bakmadan söyle':'Hatırlama — eski ders')+'</div>'
+      +'<div class="flashcard"><div class="fc-arabic">'+wd.ar+'</div><div class="fc-hint">Önce anlamını kendin söyle / düşün</div>'
       +'<div class="fc-answer" id="fcAns"><div class="fc-meaning">'+wd.tr+'</div><div class="fc-latin">'+wd.latin+'</div></div></div>'
       +'<button class="speak-btn" onclick="speak(\''+wd.ar+'\')" style="margin:0 auto">🔊 Sesli dinle</button></div>';
-    footer.innerHTML='<button class="btn-secondary" onclick="lessonNext()">Sonraki →</button>';
+    footer.innerHTML='<button class="btn-primary" onclick="showFcAnswer()">Cevabı gör →</button>';
   } else if(st.type==='challenge'){
     renderChallenge(st.c); return;
   } else if(st.type==='ozet'){
@@ -951,12 +964,21 @@ function renderStep(){
       +w.examples.map(function(ex){return '<div class="ozet-card"><div class="ozet-ar">'+ex.ar+'</div><div class="ozet-tr">'+ex.tr+'</div><span class="dia-speak" onclick="speak(\''+ex.ar+'\')">🔊 dinle</span></div>';}).join('')+'</div>';
   } else if(st.type==='notebook'){
     const photos=(state.notebookPhotos[todayKey()]||[]).filter(function(p){return p.session===curSession;});
-    body.innerHTML='<div class="lesson-step"><div class="step-num">Son adım</div>'
-      +'<div class="nb-card"><div class="nb-icon">📓</div><div class="nb-title">Defterine yaz, fotoğrafını ekle</div>'
-      +'<div class="nb-text">Bugün öğrendiğin cümleleri defterine <strong>el yazınla</strong> yaz. Sonra fotoğrafını çekip buraya ekle — böylece ailen çalışmanı görebilir.</div>'
-      +'<button class="nb-add-btn" onclick="triggerPhoto()">📷 Defter fotoğrafı ekle</button>'
-      +'<div class="nb-preview" id="nbPreview">'+(photos.length?photos.map(function(p){return '<img src="'+p.dataUrl+'">';}).join('')+'<div class="nb-added">✓ Fotoğraf eklendi</div>':'')+'</div></div>'
-      +'<div style="font-size:12px;color:var(--text-faded);text-align:center;font-style:italic">Fotoğraf eklemek zorunlu değil ama eklersen ne kadar güzel ilerlediğin görülür 🌿</div></div>';
+    var memEx=getWeek().examples.slice(0,2);
+    body.innerHTML='<div class="lesson-step"><div class="step-num">Son adım — ezbere yaz</div>'
+      +'<div class="nb-card"><div class="nb-icon">📓</div><div class="nb-title">Önce ezberle, sonra bakmadan yaz</div>'
+      +'<div class="nb-text">Aşağıdaki cümleleri dikkatle oku ve ezberle. Hazır olunca <strong>"Gizle ve yazmaya başla"</strong>ya bas — cümleler kaybolacak, sen <strong>ezberinden</strong> defterine yazacaksın.</div>'
+      +'<div id="nbMemArea" style="background:var(--surface2);border-radius:12px;padding:14px;margin-bottom:14px;text-align:right">'
+        +memEx.map(function(ex){return '<div style="margin-bottom:12px"><div style="font-family:var(--arabic);font-size:26px;color:var(--gold-light);direction:rtl;line-height:1.5">'+ex.ar+'</div><div style="font-size:12px;color:var(--text-soft);text-align:left">'+ex.tr+'</div></div>';}).join('')
+      +'</div>'
+      +'<button class="nb-add-btn" id="nbHideBtn" onclick="hideMemAndWrite()" style="background:linear-gradient(135deg,var(--gold-dark),var(--gold))">🙈 Gizle ve yazmaya başla</button>'
+      +'<div id="nbWriteArea" style="display:none">'
+        +'<div class="nb-text" style="margin-top:16px">Şimdi ezberinden defterine yaz. Bittiğinde fotoğrafını ekle 👇</div>'
+        +'<button class="nb-add-btn" onclick="triggerPhoto()">📷 Defter fotoğrafı ekle</button>'
+        +'<div class="nb-preview" id="nbPreview">'+(photos.length?photos.map(function(p){return '<img src="'+p.dataUrl+'">';}).join('')+'<div class="nb-added">✓ Fotoğraf eklendi</div>':'')+'</div>'
+      +'</div>'
+      +'</div>'
+      +'<div style="font-size:12px;color:var(--text-faded);text-align:center;font-style:italic">Bakmadan yazmak, kopyalamaktan çok daha fazla şey öğretir 🌿</div></div>';
     footer.innerHTML='<button class="btn-primary" onclick="lessonNext()">Bitir & Kazancı Al →</button>';
   } else if(st.type==='complete'){
     stopTimer(); creditSession();
@@ -971,9 +993,28 @@ function renderStep(){
   }
 }
 
+function showFcAnswer(){
+  var a=document.getElementById('fcAns'); if(a) a.classList.add('show');
+  document.getElementById('lessonFooter').innerHTML='<button class="btn-secondary" onclick="fcResult(false)">✗ Bilemedim</button><button class="btn-primary" onclick="fcResult(true)">✓ Bildim</button>';
+}
+function fcResult(known){
+  var st=lessonSteps[lessonStep];
+  if(st && st.word){ if(known){ removeStruggled(st.word.ar); } else { addStruggled(st.word); } }
+  lessonNext();
+}
+
 let buildState=null;
-function renderBuild(b){
-  buildState={ b:b, placed:[], bank:b.chips.map(function(c,i){return {c:c,i:i,used:false};}) };
+function renderBuild(b, pool){
+  var chips=b.chips.slice();
+  // Çeldirici (tuzak) kelimeler: cümlede OLMAYAN, havuzdan en fazla 2 kelime
+  var distractors=[];
+  if(pool && pool.length){
+    var avail=pool.filter(function(w){ return chips.indexOf(w.ar)===-1; }).map(function(w){ return w.ar; });
+    for(var i=avail.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=avail[i]; avail[i]=avail[j]; avail[j]=t; }
+    distractors=avail.slice(0,2);
+  }
+  var allChips=chips.concat(distractors);
+  buildState={ b:b, placed:[], bank:allChips.map(function(c,i){return {c:c,i:i,used:false};}) };
   for(var i=buildState.bank.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=buildState.bank[i]; buildState.bank[i]=buildState.bank[j]; buildState.bank[j]=tmp; }
   drawBuild('');
 }
@@ -981,12 +1022,11 @@ function drawBuild(label){
   const b=buildState.b;
   const body=document.getElementById('lessonBody');
   body.innerHTML='<div class="lesson-step"><div class="step-num">'+(label||'Cümle kur')+'</div>'
-    +'<div class="build-tr">'+b.tr+'</div><div class="build-instr">Doğru sırada kelimelere dokun</div>'
+    +'<div class="build-tr">'+b.tr+'</div><div class="build-instr">Doğru kelimeleri doğru sırada seç — bazıları tuzak!</div>'
     +'<div class="build-answer" id="bAns">'+buildState.placed.map(function(p,idx){return '<span class="bchip" onclick="unplace('+idx+')">'+p.c+'</span>';}).join('')+'</div>'
     +'<div class="build-bank" id="bBank">'+buildState.bank.map(function(x,idx){return x.used?'':'<span class="bchip" onclick="place('+idx+')">'+x.c+'</span>';}).join('')+'</div>'
     +'<div class="build-result" id="bRes"></div></div>';
-  const allUsed=buildState.bank.every(function(x){return x.used;});
-  document.getElementById('lessonFooter').innerHTML = allUsed
+  document.getElementById('lessonFooter').innerHTML = buildState.placed.length>=1
     ? '<button class="btn-secondary" onclick="resetBuild()">Temizle</button><button class="btn-primary" onclick="checkBuild()">Kontrol et</button>'
     : '<button class="btn-secondary" onclick="lessonNext()">Atla</button>';
 }
@@ -1045,7 +1085,7 @@ function cCheck(){
   } else {
     ansEl.classList.add('wrong');
     res.className='build-result show';
-    res.innerHTML='<div style="color:#E08080;margin-bottom:6px">Henüz değil, tekrar dene ya da "Sonraki"ye geç.</div>';
+    res.innerHTML='<div style="color:#E08080;margin-bottom:6px">Henüz değil, tekrar dene ya da "Geç"e bas.</div>';
     document.getElementById('lessonFooter').innerHTML='<button class="btn-secondary" onclick="cReset()">Temizle</button><button class="btn-secondary" onclick="lessonNext()">Geç →</button>';
     setTimeout(function(){ ansEl.classList.remove('wrong'); },800);
   }
@@ -1147,7 +1187,12 @@ function finishExam(){
 }
 function closeExam(){ document.getElementById('lessonModal').classList.remove('open'); examState=null; renderToday(); renderWallet(); }
 
-function flipCard(){ var a=document.getElementById('fcAns'); if(a) a.classList.add('show'); }
+function hideMemAndWrite(){
+  var mem=document.getElementById('nbMemArea'); if(mem) mem.style.display='none';
+  var btn=document.getElementById('nbHideBtn'); if(btn) btn.style.display='none';
+  var wa=document.getElementById('nbWriteArea'); if(wa) wa.style.display='block';
+}
+
 function lessonNext(){ lessonStep++; if(lessonStep>=lessonSteps.length){ closeLesson(); return; } renderStep(); }
 function confirmCloseLesson(){
   if(examState){ if(confirm('Sınavdan çıkmak istiyor musun? İlerlemen kaybolur.')){ document.getElementById('lessonModal').classList.remove('open'); examState=null; renderToday(); } return; }
@@ -1259,6 +1304,7 @@ function renderReport(){
   var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
   var photosToday=(state.notebookPhotos[t]||[]).length;
   var examsPassed=Object.keys(state.exams).length;
+  var struggledCount=Object.keys(state.struggled).length;
   document.getElementById('reportContent').innerHTML=
     '<div class="report-card"><div class="report-title">Bugün</div>'
     +'<div class="report-stat"><span>🌅 Seans 1 — Yapı</span><span class="report-val">'+(ts.s1?'✓ Tamam':'✗ Bekliyor')+'</span></div>'
@@ -1276,6 +1322,7 @@ function renderReport(){
     +'<div class="report-stat"><span>Konu</span><span class="report-val">'+w.title+'</span></div>'
     +'<div class="report-stat"><span>Zincir</span><span class="report-val">🔥 '+state.streak.current+' gün</span></div>'
     +'<div class="report-stat"><span>Geçilen sınav</span><span class="report-val">🏆 '+examsPassed+'</span></div>'
+    +'<div class="report-stat"><span>Tekrar edilecek kelime 🧠</span><span class="report-val">'+struggledCount+'</span></div>'
     +'<div class="report-stat"><span>Toplam seans</span><span class="report-val">'+totalSessions+'</span></div>'
     +'<div class="report-stat"><span>Toplam süre</span><span class="report-val">~'+(totalSessions*25)+' dk</span></div></div>';
 }
@@ -1286,6 +1333,7 @@ function sendReport(){
   var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
   var photosToday=(state.notebookPhotos[t]||[]).length;
   var examsPassed=Object.keys(state.exams).length;
+  var struggledCount=Object.keys(state.struggled).length;
   var dateStr=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   var body='Selâmün aleyküm anne baba,\n\n'+state.name+'\'ın Arapça raporu — '+dateStr+'\n\n'
     +'─────────────────────────────────\n📅 BUGÜNÜN SEANSLARI (3 × 25 dk)\n'
@@ -1305,6 +1353,7 @@ function sendReport(){
     +'Konu: '+w.title+' — '+w.topic+'\n'
     +'Çalışma zinciri: 🔥 '+state.streak.current+' gün\n'
     +'Geçilen sınav sayısı: 🏆 '+examsPassed+'\n'
+    +'Tekrar edilecek kelime (henüz tam oturmayan): '+struggledCount+'\n'
     +'Toplam tamamlanan seans: '+totalSessions+'\n'
     +'Toplam çalışma süresi: ~'+(totalSessions*25)+' dakika\n\n'
     +'Not: Bugünkü defter fotoğrafları bu mesaja eklenmiştir.\n\nSevgiler,\n'+state.name;
