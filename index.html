@@ -84,6 +84,15 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
 .session-title{ font-family:var(--display); font-size:20px; font-weight:400; margin-bottom:4px; line-height:1.2; }
 .session-desc{ font-size:12px; color:var(--text-soft); line-height:1.5; }
 .session-reward{ margin-top:10px; font-size:11px; color:var(--gold); background:rgba(200,168,75,0.08); border:1px solid rgba(200,168,75,0.15); border-radius:8px; padding:5px 10px; display:inline-block; }
+.exam-card{ border-radius:18px; padding:18px 20px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden; margin-bottom:12px; }
+.exam-card.week{ background:linear-gradient(135deg,rgba(200,168,75,0.18),rgba(200,168,75,0.06)); border:1px solid rgba(200,168,75,0.4); }
+.exam-card.month{ background:linear-gradient(135deg,rgba(91,141,200,0.2),rgba(200,168,75,0.1)); border:1px solid rgba(91,141,200,0.45); }
+.exam-card.done{ opacity:.6; cursor:default; }
+.exam-emoji{ font-size:26px; margin-bottom:6px; }
+.exam-title{ font-family:var(--display); font-size:19px; font-weight:500; margin-bottom:3px; }
+.exam-desc{ font-size:12px; color:var(--text-soft); line-height:1.5; margin-bottom:8px; }
+.exam-reward{ font-size:12px; color:var(--gold-light); font-weight:600; background:rgba(0,0,0,0.18); border-radius:8px; padding:5px 10px; display:inline-block; }
+.exam-passed-badge{ position:absolute; right:14px; top:14px; font-size:12px; color:var(--green-light); font-weight:600; }
 .lesson-modal{ position:fixed; inset:0; background:var(--bg); z-index:50; display:none; flex-direction:column; }
 .lesson-modal.open{ display:flex; }
 .lesson-top{ display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border); }
@@ -145,6 +154,9 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
 .rquiz-opt{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; font-size:15px; cursor:pointer; transition:all .15s; font-family:var(--body); color:var(--text); text-align:left; }
 .rquiz-opt.correct{ background:rgba(90,158,96,0.2); border-color:var(--green); color:var(--green-light); }
 .rquiz-opt.wrong{ background:rgba(220,80,80,0.15); border-color:rgba(220,80,80,0.4); color:#E08080; }
+.exam-progress{ font-size:11px; color:var(--text-faded); text-align:center; margin-bottom:6px; letter-spacing:.5px; }
+.exam-progbar{ background:var(--surface2); border-radius:99px; height:5px; overflow:hidden; margin-bottom:18px; }
+.exam-progfill{ height:100%; border-radius:99px; background:linear-gradient(90deg,var(--gold-dark),var(--gold-light)); transition:width .3s; }
 .ozet-card{ background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 18px; margin-bottom:10px; }
 .ozet-ar{ font-family:var(--arabic); font-size:30px; color:var(--gold-light); direction:rtl; text-align:right; line-height:1.5; }
 .ozet-tr{ font-size:13px; color:var(--text-soft); margin-top:2px; }
@@ -237,7 +249,7 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
     <div class="setup-feature"><span>🌅</span><span><strong>Seans 1 — Yapı:</strong> Kısa tekrar + günün yeni konusu</span></div>
     <div class="setup-feature"><span>☀️</span><span><strong>Seans 2 — Kurma:</strong> Cümle kur + eski derslerden tekrar</span></div>
     <div class="setup-feature"><span>🌙</span><span><strong>Seans 3 — Konuşma:</strong> Konuş + pekiştir + günün özeti</span></div>
-    <div class="setup-feature"><span>🔁</span><span>Her ders <strong>tekrar tekrar</strong> geri gelir — kalıcı öğrenme</span></div>
+    <div class="setup-feature"><span>🏆</span><span><strong>Hafta &amp; Ay Sınavı:</strong> Öğrendiklerini göster, bonus kazan</span></div>
     <div class="setup-feature"><span>💰</span><span>Her seans <strong>10 ₺</strong> — cüzdanına eklenir</span></div>
   </div>
 </div>
@@ -264,6 +276,7 @@ body{ font-family:var(--body); background:var(--bg); color:var(--text); min-heig
   <div id="view-today" class="view active">
     <div class="week-badge" id="weekBadge"></div>
     <div class="progress-section" id="progressSection"></div>
+    <div id="examZone"></div>
     <div class="sec-title">Bugünün 3 seansı</div>
     <div class="sessions-grid" id="sessionsGrid"></div>
   </div>
@@ -305,6 +318,11 @@ const STORAGE_KEY = 'hatice_arabic_v1';
 const EMAILJS_SERVICE = 'service_1nak2td';
 const EMAILJS_TEMPLATE = 'template_yq6pglm';
 const REWARD = 10;
+const EXAM_PASS = 0.70;          // %70 baraj
+const WEEK_EXAM_REWARD = 20;     // hafta sınavı bonusu
+const MONTH_EXAM_REWARD = 50;    // ay sınavı bonusu
+const WEEK_EXAM_EVERY = 6;       // her 6 günde bir hafta sınavı
+const MONTH_EXAM_EVERY = 30;     // her 30 günde bir büyük sınav
 
 const CURRICULUM = [
   {
@@ -701,9 +719,10 @@ let state = {
   transactions:[],
   savingsGoal:{ name:'Yeni bir kitap', target:300 },
   notebookPhotos:{},
+  exams:{},
 };
 function todayKey(){ return new Date().toISOString().split('T')[0]; }
-function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; }catch(e){} }
+function loadState(){ try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state={...state,...JSON.parse(s)}; if(!state.exams) state.exams={}; }catch(e){} }
 function saveState(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ alert('Hafıza dolu olabilir — eski defter fotoğraflarını silmen gerekebilir.'); } }
 
 // === Hatice'ye özel öğrenme motoru: her gün yeni ders + aralıklı/birikimli tekrar ===
@@ -718,6 +737,35 @@ function getReviewLessons(){
 }
 // Tekrar derslerinden kelime topla
 function reviewWordList(review,n){ var out=[]; for(var i=0;i<review.length && out.length<n;i++){ if(review[i].words[0]) out.push(review[i].words[0]); if(out.length<n && review[i].words[1]) out.push(review[i].words[1]); } return out.slice(0,n); }
+
+// === SINAV SİSTEMİ (Hollanda modeli: hafta + aylık birikimli) ===
+// Belirli gün aralığındaki derslerin kelimelerini toplar (idx dahil, döngüsel)
+function wordsFromLessons(startIdx, count){
+  var pool=[]; var seen={};
+  for(var i=0;i<count;i++){
+    var lesson=CURRICULUM[(startIdx+i) % CURRICULUM.length];
+    lesson.words.forEach(function(w){ if(!seen[w.ar]){ seen[w.ar]=1; pool.push(w); } });
+  }
+  return pool;
+}
+// Hafta sınavı: son WEEK_EXAM_EVERY günün (derslerin) kelimeleri
+function getWeekExamPool(){
+  var day=getDayNum();
+  var startDay=Math.max(0, day-WEEK_EXAM_EVERY+1);
+  var startIdx=startDay % CURRICULUM.length;
+  return wordsFromLessons(startIdx, Math.min(WEEK_EXAM_EVERY, day+1));
+}
+// Ay sınavı: bugüne kadar öğrenilmiş TÜM kelimeler
+function getMonthExamPool(){
+  var day=getDayNum();
+  var count=Math.min(day+1, CURRICULUM.length);
+  return wordsFromLessons(0, count);
+}
+// Bugün hangi sınav(lar) açık? (periyot numarası ile)
+function weekExamPeriod(){ return Math.floor(getDayNum()/WEEK_EXAM_EVERY); }
+function monthExamPeriod(){ return Math.floor(getDayNum()/MONTH_EXAM_EVERY); }
+function weekExamDue(){ var day=getDayNum(); return day>=WEEK_EXAM_EVERY-1 && !state.exams['w'+weekExamPeriod()]; }
+function monthExamDue(){ var day=getDayNum(); return day>=MONTH_EXAM_EVERY-1 && !state.exams['m'+monthExamPeriod()]; }
 
 function startApp(){
   const n=document.getElementById('setupName').value.trim();
@@ -756,6 +804,7 @@ function switchView(v){
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
   document.getElementById('view-'+v).classList.add('active');
   document.getElementById('tab-'+v).classList.add('active');
+  if(v==='today') renderToday();
   if(v==='wallet') renderWallet();
   if(v==='notebook') renderNotebook();
   if(v==='report') renderReport();
@@ -767,6 +816,7 @@ function renderToday(){
   const done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
   const pct=Math.round(done/3*100);
   document.getElementById('progressSection').innerHTML='<div class="progress-header"><div class="progress-label">Bugün tamamlandı</div><div class="progress-val">'+done+'/3 seans • '+(done*25)+' dk • +'+(done*REWARD)+' ₺</div></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div>';
+  renderExamZone();
   const S=[
     {k:'s1',icon:'🌅',label:'Sabah',time:'Seans 1',desc:'Kısa tekrar + günün yeni konusu',cls:'s1',ttl:'Yapı'},
     {k:'s2',icon:'☀️',label:'Öğle',time:'Seans 2',desc:'Cümle kur + eski derslerden tekrar',cls:'s2',ttl:'Kurma'},
@@ -779,6 +829,29 @@ function renderToday(){
       +'<div class="session-desc">'+s.desc+'</div>'
       +'<div class="session-reward">💰 Tamamlayınca +'+REWARD+' ₺</div></div>';
   }).join('');
+}
+
+function renderExamZone(){
+  var zone=document.getElementById('examZone'); if(!zone) return;
+  var html='';
+  var wPeriod=weekExamPeriod(), mPeriod=monthExamPeriod();
+  var wPassed=state.exams['w'+wPeriod], mPassed=state.exams['m'+mPeriod];
+  // Büyük (ay) sınavı önce göster — daha önemli
+  if(monthExamDue() || mPassed){
+    if(mPassed){
+      html+='<div class="exam-card month done"><div class="exam-passed-badge">✓ +'+MONTH_EXAM_REWARD+' ₺</div><div class="exam-emoji">🎓</div><div class="exam-title">Büyük Sınav</div><div class="exam-desc">Bu ayın büyük sınavını geçtin — aferin! 🎉</div></div>';
+    } else {
+      html+='<div class="exam-card month" onclick="openExam(\'month\')"><div class="exam-emoji">🎓</div><div class="exam-title">Büyük Sınav — Hazır!</div><div class="exam-desc">Şimdiye kadar öğrendiğin tüm kelimeler. Geçince büyük bonus.</div><div class="exam-reward">🏆 Geç → +'+MONTH_EXAM_REWARD+' ₺</div></div>';
+    }
+  }
+  if(weekExamDue() || (wPassed && !monthExamDue() && !mPassed)){
+    if(wPassed){
+      html+='<div class="exam-card week done"><div class="exam-passed-badge">✓ +'+WEEK_EXAM_REWARD+' ₺</div><div class="exam-emoji">🏆</div><div class="exam-title">Hafta Sınavı</div><div class="exam-desc">Bu haftanın sınavını geçtin — harikasın!</div></div>';
+    } else if(weekExamDue()){
+      html+='<div class="exam-card week" onclick="openExam(\'week\')"><div class="exam-emoji">🏆</div><div class="exam-title">Hafta Sınavı — Hazır!</div><div class="exam-desc">Son günlerde öğrendiğin kelimeler. Bildiğini göster!</div><div class="exam-reward">🏆 Geç → +'+WEEK_EXAM_REWARD+' ₺</div></div>';
+    }
+  }
+  zone.innerHTML=html;
 }
 
 let curSession=null, lessonStep=0, lessonSteps=[], timerInt=null, timerSec=25*60;
@@ -995,9 +1068,89 @@ function rquizAnswer(btn, sel, correct){
   setTimeout(function(){ lessonNext(); }, 1100);
 }
 
+// === SINAV MODALI ===
+var examState=null;
+function buildExamQuestions(pool, n){
+  var shuffled=pool.slice();
+  for(var i=shuffled.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=shuffled[i]; shuffled[i]=shuffled[j]; shuffled[j]=tmp; }
+  var picked=shuffled.slice(0, Math.min(n, shuffled.length));
+  return picked.map(function(word){
+    var wrongs=pool.filter(function(x){return x.ar!==word.ar;});
+    for(var i=wrongs.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var tmp=wrongs[i]; wrongs[i]=wrongs[j]; wrongs[j]=tmp; }
+    var opts=wrongs.slice(0,3).map(function(x){return x.tr;}).concat([word.tr]);
+    for(var k=opts.length-1;k>0;k--){ var m=Math.floor(Math.random()*(k+1)); var t=opts[k]; opts[k]=opts[m]; opts[m]=t; }
+    return { word:word, opts:opts };
+  });
+}
+function openExam(kind){
+  var pool = kind==='week' ? getWeekExamPool() : getMonthExamPool();
+  var n = kind==='week' ? 10 : 15;
+  var questions=buildExamQuestions(pool, n);
+  examState={ kind:kind, questions:questions, idx:0, correct:0 };
+  document.getElementById('lessonSessionLabel').textContent = kind==='week' ? '🏆 Hafta Sınavı' : '🎓 Büyük Sınav';
+  document.getElementById('lessonModal').classList.add('open');
+  document.getElementById('lessonTimer').textContent='';
+  renderExamQ();
+}
+function renderExamQ(){
+  var body=document.getElementById('lessonBody');
+  var footer=document.getElementById('lessonFooter');
+  var q=examState.questions[examState.idx];
+  var total=examState.questions.length;
+  var pct=Math.round(examState.idx/total*100);
+  body.innerHTML='<div class="lesson-step"><div class="exam-progress">Soru '+(examState.idx+1)+' / '+total+' • Doğru: '+examState.correct+'</div>'
+    +'<div class="exam-progbar"><div class="exam-progfill" style="width:'+pct+'%"></div></div>'
+    +'<div class="rquiz-q">'+q.word.ar+'</div><div class="rquiz-sub">Türkçesi hangisi?</div>'
+    +'<div class="rquiz-opts" id="exOpts">'+q.opts.map(function(o){return '<button class="rquiz-opt" onclick="examAnswer(this,\''+o.replace(/'/g,"\\'")+'\',\''+q.word.tr.replace(/'/g,"\\'")+'\')">'+o+'</button>';}).join('')+'</div></div>';
+  footer.innerHTML='';
+}
+function examAnswer(btn, sel, correct){
+  var opts=document.querySelectorAll('.rquiz-opt');
+  opts.forEach(function(o){ o.onclick=null; if(o.textContent===correct) o.classList.add('correct'); });
+  if(sel===correct){ examState.correct++; } else { btn.classList.add('wrong'); }
+  setTimeout(function(){
+    examState.idx++;
+    if(examState.idx>=examState.questions.length){ finishExam(); }
+    else { renderExamQ(); }
+  }, 1000);
+}
+function finishExam(){
+  var total=examState.questions.length;
+  var score=examState.correct/total;
+  var passed=score>=EXAM_PASS;
+  var body=document.getElementById('lessonBody');
+  var footer=document.getElementById('lessonFooter');
+  var pctScore=Math.round(score*100);
+  if(passed){
+    var reward = examState.kind==='week' ? WEEK_EXAM_REWARD : MONTH_EXAM_REWARD;
+    var key = examState.kind==='week' ? ('w'+weekExamPeriod()) : ('m'+monthExamPeriod());
+    if(!state.exams[key]){
+      state.exams[key]=true;
+      state.wallet.balance+=reward; state.wallet.totalEarned+=reward;
+      state.transactions.unshift({ date:todayKey(), type:'earn', amount:reward, note:(examState.kind==='week'?'🏆 Hafta Sınavı':'🎓 Büyük Sınav') });
+      saveState(); updateHeader();
+    }
+    body.innerHTML='<div class="celebrate"><div class="coin-pop">'+(examState.kind==='week'?'🏆':'🎓')+'</div><div class="celebrate-arabic">مَا شاءَ الله</div>'
+      +'<div style="font-size:11px;color:var(--text-faded);margin-bottom:12px;font-style:italic">Mâşâallah — Ne güzel başardın</div>'
+      +'<div class="earn-badge">+'+reward+' ₺</div>'
+      +'<div class="celebrate-title">Sınavı geçtin! '+examState.correct+'/'+total+' doğru</div>'
+      +'<div class="celebrate-sub">%'+pctScore+' başarı 🎉</div>'
+      +'<div style="margin-top:20px;background:var(--surface);border-radius:14px;padding:16px"><div style="font-size:11px;color:var(--text-faded);margin-bottom:6px">Cüzdan bakiyen</div><div style="font-size:30px;color:var(--gold-light);font-family:var(--display);font-style:italic">'+state.wallet.balance+' ₺</div></div></div>';
+    footer.innerHTML='<button class="btn-primary" onclick="closeExam()">Harika! Kapat ✓</button>';
+  } else {
+    body.innerHTML='<div class="celebrate"><div style="font-size:48px;margin-bottom:8px">🌱</div>'
+      +'<div class="celebrate-title">Az kaldı!</div>'
+      +'<div class="celebrate-sub" style="margin-bottom:6px">'+examState.correct+'/'+total+' doğru — %'+pctScore+'</div>'
+      +'<div style="font-size:13px;color:var(--text-soft);line-height:1.7;max-width:280px;margin:0 auto">Geçmek için %70 lazım ama hiç sorun değil — biraz daha tekrar edip <strong>tekrar deneyebilirsin.</strong> Her deneme seni daha güçlü yapar 🌿</div></div>';
+    footer.innerHTML='<button class="btn-secondary" onclick="closeExam()">Kapat</button><button class="btn-primary" onclick="openExam(\''+examState.kind+'\')">🔄 Tekrar dene</button>';
+  }
+}
+function closeExam(){ document.getElementById('lessonModal').classList.remove('open'); examState=null; renderToday(); renderWallet(); }
+
 function flipCard(){ var a=document.getElementById('fcAns'); if(a) a.classList.add('show'); }
 function lessonNext(){ lessonStep++; if(lessonStep>=lessonSteps.length){ closeLesson(); return; } renderStep(); }
 function confirmCloseLesson(){
+  if(examState){ if(confirm('Sınavdan çıkmak istiyor musun? İlerlemen kaybolur.')){ document.getElementById('lessonModal').classList.remove('open'); examState=null; renderToday(); } return; }
   var st=lessonSteps[lessonStep];
   if(st && st.type==='complete'){ closeLesson(); return; }
   if(confirm('Seanstan çıkmak istiyor musun? Bitirmezsen 10 ₺ kazanamazsın.')) closeLesson();
@@ -1105,6 +1258,7 @@ function renderReport(){
   var done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
   var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
   var photosToday=(state.notebookPhotos[t]||[]).length;
+  var examsPassed=Object.keys(state.exams).length;
   document.getElementById('reportContent').innerHTML=
     '<div class="report-card"><div class="report-title">Bugün</div>'
     +'<div class="report-stat"><span>🌅 Seans 1 — Yapı</span><span class="report-val">'+(ts.s1?'✓ Tamam':'✗ Bekliyor')+'</span></div>'
@@ -1121,6 +1275,7 @@ function renderReport(){
     +'<div class="report-stat"><span>Bugünkü ders</span><span class="report-val">Ders '+wn+' / 12</span></div>'
     +'<div class="report-stat"><span>Konu</span><span class="report-val">'+w.title+'</span></div>'
     +'<div class="report-stat"><span>Zincir</span><span class="report-val">🔥 '+state.streak.current+' gün</span></div>'
+    +'<div class="report-stat"><span>Geçilen sınav</span><span class="report-val">🏆 '+examsPassed+'</span></div>'
     +'<div class="report-stat"><span>Toplam seans</span><span class="report-val">'+totalSessions+'</span></div>'
     +'<div class="report-stat"><span>Toplam süre</span><span class="report-val">~'+(totalSessions*25)+' dk</span></div></div>';
 }
@@ -1130,6 +1285,7 @@ function sendReport(){
   var done=[ts.s1,ts.s2,ts.s3].filter(Boolean).length;
   var totalSessions=0; Object.values(state.sessions).forEach(function(s){ totalSessions+=[s.s1,s.s2,s.s3].filter(Boolean).length; });
   var photosToday=(state.notebookPhotos[t]||[]).length;
+  var examsPassed=Object.keys(state.exams).length;
   var dateStr=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   var body='Selâmün aleyküm anne baba,\n\n'+state.name+'\'ın Arapça raporu — '+dateStr+'\n\n'
     +'─────────────────────────────────\n📅 BUGÜNÜN SEANSLARI (3 × 25 dk)\n'
@@ -1148,6 +1304,7 @@ function sendReport(){
     +'Bugünkü ders: Ders '+wn+' / 12\n'
     +'Konu: '+w.title+' — '+w.topic+'\n'
     +'Çalışma zinciri: 🔥 '+state.streak.current+' gün\n'
+    +'Geçilen sınav sayısı: 🏆 '+examsPassed+'\n'
     +'Toplam tamamlanan seans: '+totalSessions+'\n'
     +'Toplam çalışma süresi: ~'+(totalSessions*25)+' dakika\n\n'
     +'Not: Bugünkü defter fotoğrafları bu mesaja eklenmiştir.\n\nSevgiler,\n'+state.name;
@@ -1213,7 +1370,6 @@ function speak(text){
     ttsWarned=true;
     alert('Telefonda Arapça ses paketi yüklü değil gibi görünüyor.\n\nSesi açmak için:\nAyarlar → Genel yönetim → Metin okuma (TTS) → motor (Google) → Dil yükle → Arapça\'yı indir.\n\nSonra uygulamayı yenile. (Ses gelene kadar yazılı okuyabilirsin.)');
   }
-  // Android/iOS uyumu: cancel sonrası kısa gecikmeyle başlat
   setTimeout(function(){ try{ speechSynthesis.speak(u); }catch(e){} }, 80);
 }
 
